@@ -1,46 +1,61 @@
-import os
+import numpy as np
 import glob
+import os
 import csv
 import pandas as pd
 import re
 import time
 
-mycsvdir = r"/home/dmitreiro/WinVM/abaqus_datasets/dataset"
-
-# Get all the CSV files in that directory
-csvfiles = glob.glob(os.path.join(mycsvdir, "*.csv"))
-
-# Create empty DataFrames to store final results
-final_x_file = r"/home/dmitreiro/WinVM/abaqus_datasets/X_cruciform.csv"
-final_y_file = r"/home/dmitreiro/WinVM/abaqus_datasets/y_cruciform.csv"
+# Global variables
+MYCSVDIR = r"/home/dmitreiro/WinVM/abaqus_datasets/dataset"
+X_CRUCIFORM = r"/home/dmitreiro/WinVM/abaqus_datasets/x_cruciform.csv"
+Y_CRUCIFORM = r"/home/dmitreiro/WinVM/abaqus_datasets/y_cruciform.csv"
+X_BUFF_TSHOLD = 100
 
 # Start the timer
 start_time = time.time()
 
-# Write headers to the output files first
-with open(final_x_file, "w", newline="") as x_out, open(
-    final_y_file, "w", newline=""
-) as y_out:
-    x_writer = csv.writer(x_out)
-    y_writer = csv.writer(y_out)
+# Get all the csv files in that directory (assuming they have the extension .csv)
+csvfiles = glob.glob(os.path.join(MYCSVDIR, "*.csv"))
+total_files = len(csvfiles)
 
-    # Write header row to final_y_file
-    y_writer.writerow(["F", "G", "H", "L", "M", "N", "sigma0", "k", "n"])
+# Checking for previous data files
+if os.path.isfile(X_CRUCIFORM):
+    os.remove(X_CRUCIFORM)
+if os.path.isfile(Y_CRUCIFORM):
+    os.remove(Y_CRUCIFORM)
 
-    # Process files one at a time with a counter
-    total_files = len(csvfiles)
-    for index, cs in enumerate(csvfiles, start=1):
-        # Read CSV file into DataFrame
-        df = pd.read_csv(cs, header=None)
-        # Write to output CSV file without keeping in memory
-        df.to_csv(x_out, index=False, header=False)
+final_rows = []
+final_y = []
 
-        # Extract numeric values from file name
-        matches = re.findall(r"\d+(?:\.\d+)?", cs)
-        y_writer.writerow(matches)
+for index, cs in enumerate(csvfiles, start=1):
+    rows = []
+    with open(cs, "r") as file:
+        csvreader = csv.reader(file)
+        for row in csvreader:
+            rows.append(row)
+    rows = [x for f in rows for x in f]
+    final_rows.append(rows)
+    final_y.append(re.findall(r"\d+(?:\.\d+)?", cs))
 
+    # Print progress
+    print(f"Processed {index}/{total_files} files")
+
+    # If buffer x file has more than 100 lines, it is dumped
+    if len(final_rows) == X_BUFF_TSHOLD:
         # Print progress
-        print(f"Processed {index}/{total_files} files")
+        print(f"Dumping x buffer file")
+        p = pd.DataFrame(final_rows)
+        p.to_csv(X_CRUCIFORM, mode="a", header=False, index=False)
+        final_rows = []
+
+print("Dataframe x and y data")
+p = pd.DataFrame(final_rows)
+pf = pd.DataFrame(final_y, columns=["F", "G", "H", "L", "M", "N", "sigma0", "k", "n"])
+
+print("Writting final x and y data.")
+p.to_csv(X_CRUCIFORM, mode="a", header=False, index=False)
+pf.to_csv(Y_CRUCIFORM)
 
 # End the timer and calculate elapsed time
 end_time = time.time()
