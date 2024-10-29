@@ -1,4 +1,4 @@
-import numpy as np
+import configparser
 import glob
 import os
 import csv
@@ -6,10 +6,15 @@ import pandas as pd
 import re
 import time
 
-# Global variables
-MYCSVDIR = r"/home/dmitreiro/WinVM/abaqus_datasets/dataset"
-X_CRUCIFORM = r"/home/dmitreiro/WinVM/abaqus_datasets/x_cruciform.csv"
-Y_CRUCIFORM = r"/home/dmitreiro/WinVM/abaqus_datasets/y_cruciform.csv"
+# Reading configuration file
+config = configparser.ConfigParser()
+config.read(r"config/config.ini")
+print(config.sections())
+
+# Accessing variables
+MYCSVDIR = config.get("Paths", "data_raw")
+X_CRUCIFORM = config.get("Files", "x_compiled")
+Y_CRUCIFORM = config.get("Files", "y_compiled")
 X_BUFF_TSHOLD = 100
 
 # Start the timer

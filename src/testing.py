@@ -12,16 +12,27 @@ from sklearn.svm import SVR;
 import xgboost as xgb;
 from IPython.core.interactiveshell import InteractiveShell;
 from IPython.display import display;
+import configparser
 import time;
 import joblib;
 from sklearn.multioutput import MultiOutputRegressor;
+
+# Reading configuration file
+config = configparser.ConfigParser()
+config.read(r"config/config.ini")
+print(config.sections())
+
+# Accessing variables
+X_TEST = config.get("Files", "x_test")
+Y_TEST = config.get("Files", "y_test")
+XGB_MODEL = config.get("Files", "xgb_model")
 
 # IMPORT THE FILTERED DATA FOR TESTING
 # THE DATA SHOULD ALREADY BE NORMALIZED
 # THE DATA SHOULD ONLY CONTAIN USEFUL SIMULATIONS (Fxy20>Fxy19)
 # CHANGE NUMBERS ON THE MODEL NAME FILE FOR THE DESIRED MODEL
 
-X_test = pd.read_csv(r"/home/dmitreiro/WinVM/abaqus_datasets/x_test.csv")
+X_test = pd.read_csv(X_TEST)
 
 # DEFINE X COLUMNS
 l=[]
@@ -42,12 +53,12 @@ display(X_test)
 # COPY TRAINING SET FROM "(...)\Datasets\Datatrain\XXXX\N\ to (...)\TRAIN
 # CHANGE NUMBERS ON THE TRAINING NAME FILE FOR THE DESIRED MODEL
 
-y_test = pd.read_csv(r"/home/dmitreiro/WinVM/abaqus_datasets/y_test.csv")
+y_test = pd.read_csv(Y_TEST)
 display(y_test)
 
 # LOAD TRAINED MODEL
 # ADAPT TO NAME ON JOBLIB EG: modelo_xgboost_2500_3
-modelo = joblib.load(r"/home/dmitreiro/WinVM/abaqus_datasets/modelo_xgboost_2000_1_0.02_6_1000.joblib")
+modelo = joblib.load(XGB_MODEL)
 print(modelo.get_params())
 
 # PREDICT TRAINING VALUES
@@ -60,5 +71,3 @@ mape_test = mean_absolute_percentage_error(y_test, y_test_pred)
 print(f'R-squared on Test Data: {r2_test}')
 print(f'MAE on Test Data: {mae_test}')
 print(f'MAPE on Test Data: {mape_test}')
-
-

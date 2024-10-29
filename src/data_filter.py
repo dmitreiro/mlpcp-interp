@@ -12,13 +12,27 @@ from sklearn.svm import SVR;
 import xgboost as xgb;
 from IPython.core.interactiveshell import InteractiveShell;
 from IPython.display import display;
+import configparser
 import time;
 import joblib;
 from sklearn.multioutput import MultiOutputRegressor;
 
+# Reading configuration file
+config = configparser.ConfigParser()
+config.read(r"config/config.ini")
+print(config.sections())
+
+# Accessing variables
+X_CRUCIFORM = config.get("Files", "x_compiled")
+Y_CRUCIFORM = config.get("Files", "y_compiled")
+X_TRAIN = config.get("Files", "x_train")
+Y_TRAIN = config.get("Files", "y_train")
+X_TEST = config.get("Files", "x_test")
+Y_TEST = config.get("Files", "y_test")
+
 # %%
 # Importar ficheiro X
-X = pd.read_csv(r"/home/dmitreiro/WinVM/abaqus_datasets/x_cruciform.csv", header=None)
+X = pd.read_csv(X_CRUCIFORM, header=None)
 display(X)
 
 # Remover linhas duplicadas
@@ -34,7 +48,7 @@ display(X)
 
 # %%
 # Importar ficheiro y
-y = pd.read_csv(r"/home/dmitreiro/WinVM/abaqus_datasets/y_cruciform.csv", sep=",")
+y = pd.read_csv(Y_CRUCIFORM, sep=",")
 display(y)
 
 # Filtro de colunas
@@ -79,7 +93,7 @@ random_state = 42
 np.random.seed(random_state)
 
 # Calculate the number of rows to delete we do this to get a "round number"
-#rows_to_delete = len(X) - 4750
+# rows_to_delete = len(X) - 4750
 rows_to_delete = len(X) - 2600
 
 # Randomly choose the indices to delete
@@ -132,10 +146,8 @@ X_train = X_scaled.drop(r)
 y_train = y.drop(r)
 
 # %%
-X_train.to_csv("/home/dmitreiro/WinVM/abaqus_datasets/x_train.csv", index=False)
-y_train.to_csv("/home/dmitreiro/WinVM/abaqus_datasets/y_train.csv", index=False)
+X_train.to_csv(X_TRAIN, index=False)
+y_train.to_csv(Y_TRAIN, index=False)
 
-X_test.to_csv("/home/dmitreiro/WinVM/abaqus_datasets/x_test.csv", index=False)
-y_test.to_csv("/home/dmitreiro/WinVM/abaqus_datasets/y_test.csv", index=False)
-
-
+X_test.to_csv(X_TEST, index=False)
+y_test.to_csv(Y_TEST, index=False)

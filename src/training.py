@@ -1,3 +1,4 @@
+import configparser
 import pandas as pd
 import time
 import joblib
@@ -10,6 +11,15 @@ from sklearn.multioutput import MultiOutputRegressor
 import xgboost as xgb
 import os
 
+# Reading configuration file
+config = configparser.ConfigParser()
+config.read(r"config/config.ini")
+print(config.sections())
+
+# Accessing variables
+DATA = config.get("Paths", "data_cleaned")
+MODELS = config.get("Paths", "models")
+
 # List of main folder numbers to iterate over
 main_folder_numbers = [
     500,
@@ -19,16 +29,15 @@ main_folder_numbers = [
     2500,
 ]  # Update with your actual main folder numbers
 subfolder_numbers = [1, 2, 3, 4, 5]  # Subfolders labeled 1 to 5
-base_path = r"/home/dmitreiro/WinVM/abaqus_datasets"
 
 # Function to train and evaluate model
 def train_and_evaluate(main_folder_number, subfolder_number):
     # Construct the paths to the training files
     X_train_path = os.path.join(
-        base_path, f"x_train_{main_folder_number}_{subfolder_number}.csv"
+        DATA, f"x_train_{main_folder_number}_{subfolder_number}.csv"
     )
     y_train_path = os.path.join(
-        base_path, f"y_train_{main_folder_number}_{subfolder_number}.csv"
+        DATA, f"y_train_{main_folder_number}_{subfolder_number}.csv"
     )
 
     # Load the feature and target data
@@ -73,7 +82,7 @@ def train_and_evaluate(main_folder_number, subfolder_number):
     )
 
     # Save the trained model
-    model_filename = f"modelo_xgboost_{main_folder_number}_{subfolder_number}.joblib"
+    model_filename = f"{MODELS}/modelo_xgboost_{main_folder_number}_{subfolder_number}.joblib"
     try:
         joblib.dump(modelo, model_filename)
         print(f"Model saved as {model_filename}")
@@ -126,6 +135,6 @@ for main_folder_number in main_folder_numbers:
 
 # Save overall results
 results_df = pd.DataFrame(results)
-overall_results_path = os.path.join(base_path, "overall_performance_metrics.csv")
+overall_results_path = os.path.join(MODELS, "overall_performance_metrics.csv")
 results_df.to_csv(overall_results_path, index=False)
 print(f"Overall performance metrics saved to {overall_results_path}")

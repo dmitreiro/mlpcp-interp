@@ -12,21 +12,32 @@ from sklearn.svm import SVR;
 import xgboost as xgb;
 from IPython.core.interactiveshell import InteractiveShell;
 from IPython.display import display;
+import configparser
 import time;
 import joblib;
 from sklearn.multioutput import MultiOutputRegressor;
 
+# Reading configuration file
+config = configparser.ConfigParser()
+config.read(r"config/config.ini")
+print(config.sections())
+
+# Accessing variables
+DATA = config.get("Paths", "data_cleaned")
+X_TRAIN = config.get("Files", "x_train")
+Y_TRAIN = config.get("Files", "y_train")
+
 # IMPORT THE ENTIRE DATA FOR RANDOMLY SEPARATE
 # THE DATA SHOULD ONLY CONTAIN USEFUL SIMULATIONS (Fxy20>Fxy19)
 # THE DATA SHOULD ALREADY BE NORMALIZED
-X = pd.read_csv(r"/home/dmitreiro/WinVM/abaqus_datasets/x_train.csv")
+X = pd.read_csv(X_TRAIN)
 display(X)
 
 # IMPORT THE ENTIRE DATA FOR RANDOMLY SEPARATE
 # THE DATA SHOULD ONLY CONTAIN USEFUL SIMULATIONS (Fxy20>Fxy19)
 # THE DATA SHOULD ALREADY BE NORMALIZED
 # THE DATA SHOULD ONLY CONTAIN THE NON-CONSTANT VALUES OF THE CONSTITUTIVE LAW
-y = pd.read_csv(r"/home/dmitreiro/WinVM/abaqus_datasets/y_train.csv")
+y = pd.read_csv(Y_TRAIN)
 display(y)
 
 X=X.reset_index(drop=True)
@@ -56,7 +67,5 @@ y_selected=y_selected.reset_index(drop=True)
 display(X_selected)
 display(y_selected)
 
-X_selected.to_csv(f"x_train_{A}_{b}.csv", index=False)
-y_selected.to_csv(f"y_train_{A}_{b}.csv", index=False)
-
-
+X_selected.to_csv(f"{DATA}/x_train_{A}_{b}.csv", index=False)
+y_selected.to_csv(f"{DATA}/y_train_{A}_{b}.csv", index=False)
