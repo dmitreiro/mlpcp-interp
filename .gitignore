@@ -137,3 +137,10 @@ ui-tests/.yarn/*
 ui-tests/.pnp.*
 
 git_filters/*
+
+# Ignore all files in abaqus folder but this ones
+src/abaqus/*
+!src/abaqus/Cruciform.py
+!src/abaqus/pyD.py
+!src/abaqus/UMMDp_FLC-std.obj
+!src/abaqus/UMMDp_FLC.f

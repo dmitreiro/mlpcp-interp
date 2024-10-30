@@ -33,9 +33,11 @@ import xyPlot
 import displayGroupOdbToolset as dgo
 import connectorBehavior
 
-mycsvdir = r'Z:\ML_article'
-csvfiles = glob.glob(os.path.join(mycsvdir, '*.csv'))
-#sys.path.append('c:\users\pedro prates\appdata\local\programs\python\python312\lib\site-packages')
+# Define path for data
+current_dir = os.getcwd()
+MYCSVDIR = os.path.join(current_dir, '..', '..', 'data', 'raw')
+MYCSVDIR = os.path.normpath(MYCSVDIR)
+
 overwrite=True
 
 #  ----------------------------------------------------------------------------------------------------------------  #
@@ -327,7 +329,7 @@ for valor in doe:
 #  ----------------------------------------------------------------------------------------------------------------  #
 
     # Define CSV file path
-    csv_filename = r'Z:\ML_article\Dataset\{}_{}_{}_{}_{}_{}_{}_{}_{}.csv'.format(valor_F, valor_G, valor_H, valor_L, valor_M, valor_N, valor_sigma0, valor_k, valor_n)
+    csv_filename = r'{}\{}_{}_{}_{}_{}_{}_{}_{}_{}.csv'.format(MYCSVDIR, valor_F, valor_G, valor_H, valor_L, valor_M, valor_N, valor_sigma0, valor_k, valor_n)
 
     # Open the CSV file in binary mode ('wb')
     with open(csv_filename, 'wb') as file:
