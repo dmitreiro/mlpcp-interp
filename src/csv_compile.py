@@ -9,7 +9,6 @@ import time
 # Reading configuration file
 config = configparser.ConfigParser()
 config.read(r"config/config.ini")
-print(config.sections())
 
 # Accessing variables
 MYCSVDIR = config.get("Paths", "data_raw")
@@ -46,7 +45,7 @@ for index, cs in enumerate(csvfiles, start=1):
     # Print progress
     print(f"Processed {index}/{total_files} files")
 
-    # If buffer x file has more than 100 lines, it is dumped
+    # If buffer x file has more than X_BUFF_TSHOLD lines, it is dumped
     if len(final_rows) == X_BUFF_TSHOLD:
         # Print progress
         print(f"Dumping x buffer file")
@@ -58,7 +57,7 @@ print("Dataframe x and y data")
 p = pd.DataFrame(final_rows)
 pf = pd.DataFrame(final_y, columns=["F", "G", "H", "L", "M", "N", "sigma0", "k", "n"])
 
-print("Writting final x and y data.")
+print("Writting final x and y data")
 p.to_csv(X_CRUCIFORM, mode="a", header=False, index=False)
 pf.to_csv(Y_CRUCIFORM)
 

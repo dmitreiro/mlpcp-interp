@@ -20,7 +20,6 @@ from sklearn.multioutput import MultiOutputRegressor;
 # Reading configuration file
 config = configparser.ConfigParser()
 config.read(r"config/config.ini")
-print(config.sections())
 
 # Accessing variables
 DATA = config.get("Paths", "data_cleaned")
