@@ -1,0 +1,6 @@
+pandas==2.2.2
+matplotlib==3.9.2
+scikit-learn==1.5.1
+xgboost==2.1.1
+ipython==8.27.0
+abqpy==2024.7.8
