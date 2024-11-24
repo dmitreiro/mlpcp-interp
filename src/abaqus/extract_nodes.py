@@ -1,3 +1,7 @@
+"""
+Tool to extract nodes from odb file.
+"""
+
 from abaqus import *
 from abaqusConstants import *
 

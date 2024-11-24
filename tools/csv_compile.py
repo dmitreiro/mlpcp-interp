@@ -1,3 +1,7 @@
+"""
+Tool to compile csv files.
+"""
+
 import configparser
 import glob
 import os

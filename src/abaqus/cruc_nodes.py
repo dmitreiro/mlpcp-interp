@@ -326,7 +326,6 @@ for index, valor in enumerate(doe):
    
     no_of_field_output_ut_values = len(cruci_ODB.steps['Step-1'].frames[0].fieldOutputs['S'].values)                                                  #Field Output Values
     
-    #element_int_p = cruci_ODB.steps['Step-1'].frames[0].fieldOutputs['S'].values[0].integrationPoint
 
 #  ----------------------------------------------------------------------------------------------------------------  #
 # ---------------------------------------  Write Values for Data Base  --------------------------------------------  #
@@ -375,32 +374,46 @@ for index, valor in enumerate(doe):
         # Use writerows() to write all_data to the CSV file in bulk
         writer.writerows(all_data)
 
+    if index == 0:
+        # Define CSV file path
+        csv_nodes = r'{}\nodes.csv'.format(MYCSVDIR)
 
-    # Define CSV file path
-    csv_nodes = r'{}\nodes_{}_{}_{}_{}_{}_{}_{}_{}_{}.csv'.format(MYCSVDIR, valor_F, valor_G, valor_H, valor_L, valor_M, valor_N, valor_sigma0, valor_k, valor_n)
+        # Open a .csv file to write the results
+        with open(csv_nodes, 'wb') as f_nodes:
+            nodes_writer = csv.writer(f_nodes)
+            
+            # Create a list to store all rows of data
+            nodes_all_data = []
+            
+            # Loop for nodes and coordinates in all frames
+            # # Loop for frames
+            # for frame in range(frames):
+            #     nodes_data = []
+            #     # Loop for nodes
+            #     for node in range(nodes):
+            #         n_cords = cruci_ODB.steps['Step-1'].frames[frame].fieldOutputs['COORD'].values[node].data
+            #         # Loop for coordinates
+            #         for cord in n_cords:
+            #             nodes_data.extend([cord])
 
-    # Open a .csv file to write the results
-    with open(csv_nodes, 'wb') as f_nodes:
-        nodes_writer = csv.writer(f_nodes)
-        
-        # Create a list to store all rows of data
-        nodes_all_data = []
-        
-        # Loop for nodes
-        for frame in range(frames):
+            #     # Append the row data to all_data
+            #     nodes_all_data.append(nodes_data)
+
+            # Loop for nodes and coordinates only in frame 0
             nodes_data = []
+            # Loop for nodes
             for node in range(nodes):
-                n_cords = cruci_ODB.steps['Step-1'].frames[frame].fieldOutputs['COORD'].values[node].data
+                n_cords = cruci_ODB.steps['Step-1'].frames[0].fieldOutputs['COORD'].values[node].data
+                # Loop for coordinates
                 for cord in n_cords:
                     nodes_data.extend([cord])
 
             # Append the row data to all_data
             nodes_all_data.append(nodes_data)
 
-        # Use writerows() to write all_data to the CSV file in bulk
-        nodes_writer.writerows(nodes_all_data)
+            # Use writerows() to write all_data to the CSV file in bulk
+            nodes_writer.writerows(nodes_all_data)
         
-    if index == 0:
         # Define CSV file path
         csv_elements = r'{}\elements.csv'.format(MYCSVDIR)
 
@@ -422,6 +435,27 @@ for index, valor in enumerate(doe):
 
             # Use writerows() to write all_data to the CSV file in bulk
             el_writer.writerows(el_all_data)
+
+        inst_el = a.instances['Part-1-1'].elements
+        csv_centroids = r'{}\centroids.csv'.format(MYCSVDIR)
+
+        # Open a .csv file to write the results
+        with open(csv_centroids, 'wb') as f_cent:
+            cent_writer = csv.writer(f_cent)
+            
+            # Create a list to store all rows of data
+            centroid_list = []
+            
+            # Loop for elements
+            for i, el in enumerate(inst_el):
+                region = regionToolset.Region(elements=inst_el[i:i+1])
+                properties = a.getMassProperties(regions=region)
+
+                # Append the row data
+                centroid_list.append(list(properties['volumeCentroid']))
+
+            # Use writerows() to write all_data to the CSV file in bulk
+            cent_writer.writerows(centroid_list)
 
     # Close the ODB file
     cruci_ODB.close()
