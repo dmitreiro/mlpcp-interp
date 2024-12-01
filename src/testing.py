@@ -1,6 +1,7 @@
 # %%
 import pandas as pd;
 import numpy as np;
+import os
 import random;
 import matplotlib.pyplot as plt;
 from sklearn.preprocessing import StandardScaler,MinMaxScaler;
@@ -22,51 +23,83 @@ config = configparser.ConfigParser()
 config.read(r"config/config.ini")
 
 # Accessing variables
-X_TEST = config.get("Files", "x_test")
+DATA = config.get("Paths", "data_cleaned")
+MODELS = config.get("Paths", "models")
 Y_TEST = config.get("Files", "y_test")
-XGB_MODEL = config.get("Files", "xgb_model")
 
-# IMPORT THE FILTERED DATA FOR TESTING
-# THE DATA SHOULD ALREADY BE NORMALIZED
-# THE DATA SHOULD ONLY CONTAIN USEFUL SIMULATIONS (Fxy20>Fxy19)
-# CHANGE NUMBERS ON THE MODEL NAME FILE FOR THE DESIRED MODEL
+GRIDS = [20, 30, 40]
+METHODS = ["linear", "cubic", "multiquadric"]
 
-X_test = pd.read_csv(X_TEST)
+def test_and_evaluate(grid, method):
+    # IMPORT THE FILTERED DATA FOR TESTING
+    # THE DATA SHOULD ALREADY BE NORMALIZED
+    # THE DATA SHOULD ONLY CONTAIN USEFUL SIMULATIONS (Fxy20>Fxy19)
+    # CHANGE NUMBERS ON THE MODEL NAME FILE FOR THE DESIRED MODEL
 
-# DEFINE X COLUMNS
-l=[]
-for x in range(1,21):
-    l.append("Force_x_"+str(x))
-    l.append("Force_y_"+str(x))
-    for p in range(1,565):#elements number
-        l.append("Strain_x_"+str(p)+"_"+str(x))
-        l.append("Strain_y_"+str(p)+"_"+str(x))
-        l.append("Strain_xy_"+str(p)+"_"+str(x))
-X_test.columns = l
+    # Construct the paths to the testing files
+    x_test = os.path.join(
+        DATA, f"x_test_{grid}_{method}.csv"
+    )
+    xgb_model = os.path.join(
+        MODELS, f"xgb_{grid}_{method}.joblib"
+    )
+    print(f"Loading data from {x_test} and {Y_TEST}")
+    X_test = pd.read_csv(x_test)
+    y_test = pd.read_csv(Y_TEST)
 
-display(X_test)
+    # Get the number of columns and points
+    n_cols = len(X_test.columns)
+    points = int((n_cols/20-2)/3)
 
-# IMPORT THE FILTERED DATA FOR TRAINING
-# THE DATA SHOULD ALREADY BE NORMALIZED
-# THE DATA SHOULD ONLY CONTAIN USEFUL SIMULATIONS (Fxy20>Fxy19)
-# COPY TRAINING SET FROM "(...)\Datasets\Datatrain\XXXX\N\ to (...)\TRAIN
-# CHANGE NUMBERS ON THE TRAINING NAME FILE FOR THE DESIRED MODEL
+    # DEFINE X COLUMNS
+    l=[]
+    for x in range(1,21):
+        l.append("Force_x_"+str(x))
+        l.append("Force_y_"+str(x))
+        for p in range(1, points+1):  # elements number
+            l.append("Strain_x_"+str(p)+"_"+str(x))
+            l.append("Strain_y_"+str(p)+"_"+str(x))
+            l.append("Strain_xy_"+str(p)+"_"+str(x))
+    X_test.columns = l
 
-y_test = pd.read_csv(Y_TEST)
-display(y_test)
+    #display(X_test)
+    #display(y_test)
 
-# LOAD TRAINED MODEL
-# ADAPT TO NAME ON JOBLIB EG: modelo_xgboost_2500_3
-modelo = joblib.load(XGB_MODEL)
-print(modelo.get_params())
+    # Load trained model
+    print("Loading xgb model...")
+    modelo = joblib.load(xgb_model)
+    #print(modelo.get_params())
 
-# PREDICT TRAINING VALUES
-y_test_pred = modelo.predict(X_test)
+    # PREDICT TRAINING VALUES
+    y_test_pred = modelo.predict(X_test)
 
-# PERFORMANCE ON TRAINING
-r2_test = r2_score(y_test, y_test_pred)
-mae_test = mean_absolute_error(y_test, y_test_pred)
-mape_test = mean_absolute_percentage_error(y_test, y_test_pred)
-print(f'R-squared on Test Data: {r2_test}')
-print(f'MAE on Test Data: {mae_test}')
-print(f'MAPE on Test Data: {mape_test}')
+    # PERFORMANCE ON TRAINING
+    r2_test = r2_score(y_test, y_test_pred)
+    mae_test = mean_absolute_error(y_test, y_test_pred)
+    mape_test = mean_absolute_percentage_error(y_test, y_test_pred)
+
+    print(f'R-squared on Test Data for {grid}_{method}: {r2_test}')
+    print(f'MAE on Test Data for {grid}_{method}: {mae_test}')
+    print(f'MAPE on Test Data for {grid}_{method}: {mape_test}')
+
+    return {
+        "grid": grid,
+        "method": method,
+        "r2": r2_test,
+        "mae": mae_test,
+        "mape": mape_test,
+    }
+
+# Iterate over the main folder numbers and subfolder numbers to train and evaluate models
+results = []
+for grid in GRIDS:
+    for method in METHODS:
+        result = test_and_evaluate(grid, method)
+        if result:  # Ensure result is not None
+            results.append(result)
+
+# Save overall results
+results_df = pd.DataFrame(results)
+overall_results_path = os.path.join(MODELS, "testing_performance_metrics.csv")
+results_df.to_csv(overall_results_path, index=False)
+print(f"Overall performance metrics saved to {overall_results_path}")
