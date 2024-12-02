@@ -43,37 +43,51 @@ def test_and_evaluate(grid, method):
     xgb_model = os.path.join(
         MODELS, f"xgb_{grid}_{method}.joblib"
     )
-    print(f"Loading data from {x_test} and {Y_TEST}")
-    X_test = pd.read_csv(x_test)
-    y_test = pd.read_csv(Y_TEST)
+
+    # Load the feature and target data
+    try:
+        print(f"Loading data from {x_test} and {Y_TEST}")
+        X_test = pd.read_csv(x_test)
+        y_test = pd.read_csv(Y_TEST)
+    except FileNotFoundError as e:
+        print(f"Error loading files: {e}")
+        return
 
     # Get the number of columns and points
     n_cols = len(X_test.columns)
     points = int((n_cols/20-2)/3)
 
-    # DEFINE X COLUMNS
+    # Define the columns for X_test
     l=[]
-    for x in range(1,21):
+    for x in range(1,21): # each timestep
         l.append("Force_x_"+str(x))
         l.append("Force_y_"+str(x))
         for p in range(1, points+1):  # elements number
             l.append("Strain_x_"+str(p)+"_"+str(x))
             l.append("Strain_y_"+str(p)+"_"+str(x))
             l.append("Strain_xy_"+str(p)+"_"+str(x))
+    
+    # Assign the defined column names to X_train
     X_test.columns = l
-
-    #display(X_test)
-    #display(y_test)
+    print(f"X_train shape: {X_test.shape}")
 
     # Load trained model
-    print("Loading xgb model...")
-    modelo = joblib.load(xgb_model)
-    #print(modelo.get_params())
+    try:
+        print("Loading xgb model...")
+        modelo = joblib.load(xgb_model)
+        #print(modelo.get_params())
+    except Exception as e:
+        print(f"Error loading model: {e}")
+        return
 
-    # PREDICT TRAINING VALUES
-    y_test_pred = modelo.predict(X_test)
-
-    # PERFORMANCE ON TRAINING
+    # Predict training values
+    try:
+        y_test_pred = modelo.predict(X_test)
+    except Exception as e:
+        print(f"Error predicting values: {e}")
+        return
+    
+    # Performance on training data
     r2_test = r2_score(y_test, y_test_pred)
     mae_test = mean_absolute_error(y_test, y_test_pred)
     mape_test = mean_absolute_percentage_error(y_test, y_test_pred)
@@ -87,19 +101,22 @@ def test_and_evaluate(grid, method):
         "method": method,
         "r2": r2_test,
         "mae": mae_test,
-        "mape": mape_test,
+        "mape": mape_test
     }
 
+result_path = os.path.join(MODELS, "testing_performance_metrics.csv")
+
+# Check if the file exists and delete it if it does
+if os.path.exists(result_path):
+    os.remove(result_path)
+
 # Iterate over the main folder numbers and subfolder numbers to train and evaluate models
-results = []
 for grid in GRIDS:
     for method in METHODS:
         result = test_and_evaluate(grid, method)
         if result:  # Ensure result is not None
-            results.append(result)
-
-# Save overall results
-results_df = pd.DataFrame(results)
-overall_results_path = os.path.join(MODELS, "testing_performance_metrics.csv")
-results_df.to_csv(overall_results_path, index=False)
-print(f"Overall performance metrics saved to {overall_results_path}")
+            # Save results
+            result_df = pd.DataFrame([result])
+            write_header = not os.path.exists(result_path)
+            result_df.to_csv(result_path, mode="a", header=write_header, index=False)
+            print(f"Testing performance metrics saved to {result_path}")

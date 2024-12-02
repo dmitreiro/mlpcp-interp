@@ -45,7 +45,7 @@ def train_and_evaluate(grid, method):
 
     # Define the columns for X_train
     l = []
-    for x in range(1, 21):
+    for x in range(1, 21): # each timestep
         l.append("Force_x_" + str(x))
         l.append("Force_y_" + str(x))
         for p in range(1, points+1):  # elements number
@@ -64,7 +64,7 @@ def train_and_evaluate(grid, method):
     # Train the model on the training data
     try:
         print(f"Starting train...")
-        modelo = MultiOutputRegressor(xgb.XGBRegressor(learning_rate=0.02, max_depth=5, n_estimators=1000, tree_method="hist", device="cpu")).fit(X_train, y_train)
+        modelo = MultiOutputRegressor(xgb.XGBRegressor(learning_rate=0.02, max_depth=4, n_estimators=1000, tree_method="hist", device="cpu")).fit(X_train, y_train)
     except Exception as e:
         print(f"Error training model: {e}")
         return
@@ -117,20 +117,22 @@ def train_and_evaluate(grid, method):
         "r2": r2_train,
         "mae": mae_train,
         "mape": mape_train,
-        "training_duration": training_duration,
+        "training_duration": training_duration
     }
 
+result_path = os.path.join(MODELS, "training_performance_metrics.csv")
+
+# Check if the file exists and delete it if it does
+if os.path.exists(result_path):
+    os.remove(result_path)
 
 # Iterate over the main folder numbers and subfolder numbers to train and evaluate models
-results = []
 for grid in GRIDS:
     for method in METHODS:
         result = train_and_evaluate(grid, method)
         if result:  # Ensure result is not None
-            results.append(result)
-
-# Save overall results
-results_df = pd.DataFrame(results)
-overall_results_path = os.path.join(MODELS, "overall_performance_metrics.csv")
-results_df.to_csv(overall_results_path, index=False)
-print(f"Overall performance metrics saved to {overall_results_path}")
+            # Save results
+            result_df = pd.DataFrame([result])
+            write_header = not os.path.exists(result_path)
+            result_df.to_csv(result_path, mode="a", header=write_header, index=False)
+            print(f"Training performance metrics saved to {result_path}")
