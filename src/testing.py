@@ -30,7 +30,7 @@ Y_TEST = config.get("Files", "y_test")
 GRIDS = [20, 30, 40]
 METHODS = ["linear", "cubic", "multiquadric"]
 
-def test_and_evaluate(grid, method):
+def test_and_evaluate(grid, method, test_method):
     # IMPORT THE FILTERED DATA FOR TESTING
     # THE DATA SHOULD ALREADY BE NORMALIZED
     # THE DATA SHOULD ONLY CONTAIN USEFUL SIMULATIONS (Fxy20>Fxy19)
@@ -38,7 +38,7 @@ def test_and_evaluate(grid, method):
 
     # Construct the paths to the testing files
     x_test = os.path.join(
-        DATA, f"x_test_{grid}_{method}.csv"
+        DATA, f"x_test_{grid}_{test_method}.csv"
     )
     xgb_model = os.path.join(
         MODELS, f"xgb_{grid}_{method}.joblib"
@@ -92,13 +92,14 @@ def test_and_evaluate(grid, method):
     mae_test = mean_absolute_error(y_test, y_test_pred)
     mape_test = mean_absolute_percentage_error(y_test, y_test_pred)
 
-    print(f'R-squared on Test Data for {grid}_{method}: {r2_test}')
-    print(f'MAE on Test Data for {grid}_{method}: {mae_test}')
-    print(f'MAPE on Test Data for {grid}_{method}: {mape_test}')
+    print(f'R-squared on {test_method} test for {grid}_{method} model: {r2_test}')
+    print(f'MAE on {test_method} test for {grid}_{method} model: {mae_test}')
+    print(f'MAPE on {test_method} test for {grid}_{method} model: {mape_test}')
 
     return {
         "grid": grid,
-        "method": method,
+        "model_method": method,
+        "test_method": test_method,
         "r2": r2_test,
         "mae": mae_test,
         "mape": mape_test
@@ -113,10 +114,11 @@ if os.path.exists(result_path):
 # Iterate over the main folder numbers and subfolder numbers to train and evaluate models
 for grid in GRIDS:
     for method in METHODS:
-        result = test_and_evaluate(grid, method)
-        if result:  # Ensure result is not None
-            # Save results
-            result_df = pd.DataFrame([result])
-            write_header = not os.path.exists(result_path)
-            result_df.to_csv(result_path, mode="a", header=write_header, index=False)
-            print(f"Testing performance metrics saved to {result_path}")
+        for test_method in METHODS:
+            result = test_and_evaluate(grid, method, test_method)
+            if result:  # Ensure result is not None
+                # Save results
+                result_df = pd.DataFrame([result])
+                write_header = not os.path.exists(result_path)
+                result_df.to_csv(result_path, mode="a", header=write_header, index=False)
+                print(f"Testing performance metrics saved to {result_path}")
