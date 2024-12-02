@@ -65,6 +65,9 @@ centroid_y = centroids.iloc[:, 1]  # Second column
 # Generate the coordinates for different grid sizes
 grid_sizes = [20, 30, 40]
 coords = [mesh_gen(n_points) for n_points in grid_sizes]
+print(f"Mesh grid 20: {len(coords[0][0])}/{grid_sizes[0]*grid_sizes[0]} points ({(len(coords[0][0])/(grid_sizes[0]*grid_sizes[0]))*100}%)")
+print(f"Mesh grid 30: {len(coords[1][0])}/{grid_sizes[1]*grid_sizes[1]} points ({(len(coords[1][0])/(grid_sizes[1]*grid_sizes[1]))*100}%)")
+print(f"Mesh grid 40: {len(coords[2][0])}/{grid_sizes[2]*grid_sizes[2]} points ({(len(coords[2][0])/(grid_sizes[2]*grid_sizes[2]))*100}%)")
 
 # Create the plots
 fig, axes = plt.subplots(1, 3, figsize=(18, 6))  # 1 row, 3 columns of subplots
