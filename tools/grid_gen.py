@@ -1,71 +1,86 @@
 # %% Importing libraries
+import configparser
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# %% Grid generation
-points = 300  # Total points in one axis
-x = np.linspace(0, 30, int(np.sqrt(points)))
-y = np.linspace(0, 30, int(np.sqrt(points)))
-xx, yy = np.meshgrid(x, y)
+# Reading configuration file
+config = configparser.ConfigParser()
+config.read(r"config/config.ini")
 
-# Combine x and y into a dataframe for clarity
-grid_data = pd.DataFrame({
-    'x': xx.flatten(),
-    'y': yy.flatten()
-})
-
-grid_data
+# Accessing variables
+CENT = config.get("Files", "centroids")
 
 # %% Domain region plot
 
-import numpy as np
-import matplotlib.pyplot as plt
+def mesh_gen(n_points: int):
+    """
+    Function to define mesh grid for interpolation.
+    The mesh is filtered to fit cruciform geometry domain.
+    """
+    # Define the grid
+    x = np.linspace(0, 30, n_points)
+    y = np.linspace(0, 30, n_points)
+    xx, yy = np.meshgrid(x, y)
+    points = np.column_stack([xx.flatten(), yy.flatten()])
 
-# Define the grid
-n_points = 20
-x = np.linspace(0, 30, n_points)
-y = np.linspace(0, 30, n_points)
-xx, yy = np.meshgrid(x, y)
-points = np.column_stack([xx.flatten(), yy.flatten()])
+    # Define the conditions for the region
+    in_main_square = (points[:, 0] >= 0) & (points[:, 0] <= 30) & (points[:, 1] >= 0) & (points[:, 1] <= 30)
+    out_excluded_square = ~((points[:, 0] > 15) & (points[:, 0] <= 30) & (points[:, 1] > 15) & (points[:, 1] <= 30))
+    out_excluded_circle = ((points[:, 0] - 15)**2 + (points[:, 1] - 15)**2) >= 7**2
+    in_fillet_circ_1 = ((points[:, 0] - 12.5)**2 + (points[:, 1] - 24.17)**2) <= 2.5**2
+    in_fillet_circ_2 = ((points[:, 0] - 24.17)**2 + (points[:, 1] - 12.5)**2) <= 2.5**2
+    out_square_1 = (points[:, 0] > 13.16) & (points[:, 0] < 15) & (points[:, 1] > 21.75) & (points[:, 1] < 24.17)
+    out_square_2 = (points[:, 0] > 21.75) & (points[:, 0] < 24.17) & (points[:, 1] > 13.16) & (points[:, 1] < 15)
 
-# Define the conditions for the region
-inside_main_square = (points[:, 0] >= 0) & (points[:, 0] <= 30) & (points[:, 1] >= 0) & (points[:, 1] <= 30)
-outside_excluded_square = ~((points[:, 0] > 15) & (points[:, 0] < 30) & (points[:, 1] > 15) & (points[:, 1] < 30))
-outside_excluded_circle = ((points[:, 0] - 15)**2 + (points[:, 1] - 15)**2) >= 7**2
+    # Keep points only within the circles for these squares
+    square_1_cond = out_square_1 & in_fillet_circ_1
+    square_2_cond = out_square_2 & in_fillet_circ_2
 
-# Conditions for the two new circles
-inside_circle_1 = ((points[:, 0] - 12.5)**2 + (points[:, 1] - 24.17)**2) <= 2.5**2
-inside_circle_2 = ((points[:, 0] - 24.17)**2 + (points[:, 1] - 12.5)**2) <= 2.5**2
+    # Combine all conditions
+    final_region = (
+        in_main_square
+        & out_excluded_square
+        & out_excluded_circle
+        & ~out_square_1
+        & ~out_square_2
+    )
+    final_region |= square_1_cond | square_2_cond
 
-# Define the conditions for the squares to remove
-inside_square_1 = (points[:, 0] > 13.16) & (points[:, 0] < 15) & (points[:, 1] > 21.75) & (points[:, 1] < 24.17)
-inside_square_2 = (points[:, 0] > 21.75) & (points[:, 0] < 24.17) & (points[:, 1] > 13.16) & (points[:, 1] < 15)
+    # Extract the valid points
+    valid_points = points[final_region]
 
-# Keep points only within the circles for these squares
-square_1_condition = inside_square_1 & inside_circle_1
-square_2_condition = inside_square_2 & inside_circle_2
+    # Separate into x and y coordinates
+    x_coords = valid_points[:, 0]  # All rows, first column
+    y_coords = valid_points[:, 1]  # All rows, second column
+    
+    return x_coords, y_coords
 
-# Combine all conditions
-final_region_with_borders = (
-    inside_main_square
-    & outside_excluded_square
-    & outside_excluded_circle
-    & ~inside_square_1
-    & ~inside_square_2
-)
-final_region_with_borders |= square_1_condition | square_2_condition
 
-# Extract the valid points
-valid_points_with_borders = points[final_region_with_borders]
-print(f"Valid points: {len(valid_points_with_borders)}/{len(points)}")
+# Load the centroids
+centroids = pd.read_csv(CENT, header=None)  # Assuming no header
+centroid_x = centroids.iloc[:, 0]  # First column
+centroid_y = centroids.iloc[:, 1]  # Second column
 
-# Plot the region
-plt.figure(figsize=(8, 8))
-plt.scatter(valid_points_with_borders[:, 0], valid_points_with_borders[:, 1], s=1, alpha=0.6)
-plt.title("Domain region")
-plt.xlabel("x (mm)")
-plt.ylabel("y (mm)")
-plt.grid(True)
-plt.axis('equal')
+# Generate the coordinates for different grid sizes
+grid_sizes = [20, 30, 40]
+coords = [mesh_gen(n_points) for n_points in grid_sizes]
+
+# Create the plots
+fig, axes = plt.subplots(1, 3, figsize=(18, 6))  # 1 row, 3 columns of subplots
+
+# Plot each grid
+for ax, (n_points, (x_coords, y_coords)) in zip(axes, zip(grid_sizes, coords)):
+    # Scatter plot for the mesh grid points
+    ax.scatter(x_coords, y_coords, color="blue", s=2, label="Grid")
+    # Scatter plot for the centroids
+    ax.scatter(centroid_x, centroid_y, color="red", s=2, label="Centroids")
+    ax.set_title(f"Grid Size: {n_points}x{n_points}")
+    ax.set_xlabel("x coordinates")
+    ax.set_ylabel("y coordinates")
+    ax.legend()  # Add a legend
+    ax.grid(True)
+
+# Adjust layout and show the plots
+plt.tight_layout()
 plt.show()

@@ -17,10 +17,6 @@ DATA = config.get("Paths", "data_cleaned")
 INT_P = config.get("Files", "centroids")
 X_TRAIN = config.get("Files", "x_train")
 X_TEST = config.get("Files", "x_test")
-# DATASET = "/home/dmitreiro/MLCCM/data/cleaned/x_train_2000_1.csv"
-# IN_DATASET = "/home/dmitreiro/MLCCM/data/cleaned/x_test.csv"
-# DATA_INTERP = "/home/dmitreiro/MLCCM/data/cleaned/x_train_2000_1_cubic.csv"
-# OUT_DATA_INTERP = "/home/dmitreiro/MLCCM/data/cleaned/x_test_cubic.csv"
 
 IN_FILES = [X_TRAIN, X_TEST]
 GRIDS = [20, 30, 40]
@@ -41,7 +37,7 @@ def mesh_gen(n_points: int):
 
     # Define the conditions for the region
     in_main_square = (points[:, 0] >= 0) & (points[:, 0] <= 30) & (points[:, 1] >= 0) & (points[:, 1] <= 30)
-    out_excluded_square = ~((points[:, 0] > 15) & (points[:, 0] < 30) & (points[:, 1] > 15) & (points[:, 1] < 30))
+    out_excluded_square = ~((points[:, 0] > 15) & (points[:, 0] <= 30) & (points[:, 1] > 15) & (points[:, 1] <= 30))
     out_excluded_circle = ((points[:, 0] - 15)**2 + (points[:, 1] - 15)**2) >= 7**2
     in_fillet_circ_1 = ((points[:, 0] - 12.5)**2 + (points[:, 1] - 24.17)**2) <= 2.5**2
     in_fillet_circ_2 = ((points[:, 0] - 24.17)**2 + (points[:, 1] - 12.5)**2) <= 2.5**2
