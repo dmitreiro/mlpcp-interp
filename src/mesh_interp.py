@@ -1,12 +1,12 @@
-# %%
 import numpy as np
 import csv
 import configparser
 import os
 import time
 import pandas as pd
-from scipy.interpolate import griddata, Rbf
-import matplotlib.pyplot as plt
+from typing import Tuple
+from numpy.typing import NDArray
+from scipy.interpolate import Rbf
 
 # Reading configuration file
 config = configparser.ConfigParser()
@@ -24,11 +24,13 @@ METHODS = ["linear", "cubic", "multiquadric"]
 BUFF_TSHOLD = 100
 
 
-def mesh_gen(n_points: int):
+def mesh_gen(n_points: int) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
-    Function to define mesh grid for interpolation.
-    The mesh is filtered to fit cruciform geometry domain.
+    Defines mesh grid of [`n_points`x`n_points`] inside a 30x30 square
+    and filters it to fit cruciform geometry domain, returning a tuple with two
+    (`n`,) arrays (`x` and `y` coordinates) of `n` filtered points.
     """
+
     # Define the grid
     x = np.linspace(0, 30, n_points)
     y = np.linspace(0, 30, n_points)
@@ -68,6 +70,10 @@ def mesh_gen(n_points: int):
     return x_coords, y_coords
 
 def interpolator(infile: str, grid: int, method: str, x, y):
+    """
+    Interpolates `infile` csv data file with a mesh grid of `grid`x`grid` points
+    using any of the `scipy.interpolate Rbf` methods.
+    """
     # Start the timer
     start_time = time.time()
 
