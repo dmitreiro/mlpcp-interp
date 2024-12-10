@@ -82,7 +82,7 @@ with open(X_TRAIN, 'r') as file:
     row = next(reader)
     x_ori_exx = []
     # print(int(len(row)-(len(row)/20-2)))
-    for i in range(int(len(row)-1-(len(row)/20-2)), len(row)-1, 3):
+    for i in range(len(row)-(int(len(row)/20)-2), len(row), 3):
         x_ori_exx.append(row[i])
 
 
@@ -93,7 +93,7 @@ with open("/home/dmitreiro/MLCCM/data/cleaned/x_train_30_inverse_multiquadric.cs
     row = next(reader)
     x_int_exx= []
     # print(int(len(row)-(len(row)/20-2)))
-    for i in range(int(len(row)-1-(len(row)/20-2)), len(row)-1, 3):
+    for i in range(len(row)-(int(len(row)/20)-2), len(row), 3):
         x_int_exx.append(row[i])
 
 # Ensure both are float
