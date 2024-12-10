@@ -101,7 +101,7 @@ def interpolator(infile: str, grid: int, method: str, x, y):
                 grid_def_x = []
                 grid_def_y = []
                 grid_def_xy = []
-                c = j*564*3+1
+                c = j*564*3+j*2
                 x_force = row[c]
                 y_force = row[c+1]
                 # For each element
