@@ -69,10 +69,11 @@ def mesh_gen(n_points: int) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     
     return x_coords, y_coords
 
-def interpolator(infile: str, grid: int, method: str, x, y):
+def interpolator(infile: str, grid: int, method: str, x: NDArray[np.float64], y: NDArray[np.float64]):
     """
     Interpolates `infile` csv data file with a mesh grid of `grid`x`grid` points
-    using any of the `scipy.interpolate Rbf` methods.
+    using any `method` from `scipy.interpolate Rbf`. Integration points coordinates `x` and `y` must
+    be given.
     """
     # Start the timer
     start_time = time.time()
