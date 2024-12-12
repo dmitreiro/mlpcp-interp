@@ -1,10 +1,25 @@
+import configparser
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from pathlib import Path
+
+# Get the current script's directory
+current_script_dir = Path(__file__).parent
+
+# Get the config file
+config_file = (current_script_dir / ".." / "config" / "config.ini").resolve()
+
+# Reading configuration file
+config = configparser.ConfigParser()
+config.read(config_file)
+
+# Accessing variables
+METRICS = config.get("Files", "test_metrics")
+
 # Load the data from the CSV file
-file_path = "~/MLCCM/models/testing_performance_metrics.csv"  # Replace with the path to your CSV file
-df = pd.read_csv(file_path)
+df = pd.read_csv(METRICS)
 
 # Set up the plotting grid
 fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharey=False)
@@ -12,7 +27,7 @@ fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharey=False)
 # Define metrics and titles
 metrics = ["r2", "mae", "mape"]
 titles = ["R² (Goodness of Fit)", "MAE (Mean Absolute Error)", "MAPE (Mean Absolute Percentage Error)"]
-y_limits = [(0.9, 1.050), (0, 5), (0, 0.06)]  # Custom y-axis limits
+y_limits = [(0.95, 1.02), (0, 3), (0, 0.04)]  # Custom y-axis limits
 
 # Create a plot for each metric
 for ax, metric, title, ylim in zip(axes, metrics, titles, y_limits):
