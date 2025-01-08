@@ -8,22 +8,26 @@
 Based on previous scientific researches<!-- (see [bibliography](#bibliography)) -->, this project aims to study Abaqus integration point data interpolation into well defined and equally spaced mesh grid points.
 
 ### Why integration point data interpolation into a structured mesh grid?
-Finite element simulation data is inherently tied to integration points, which are distributed according to the mesh used in the simulation. By other words, we can say that the obtained results are mesh dependent. But, what if we want to know data in different points other than the ones given by the simulation mesh? Well, interpolating integration point data into a structured mesh grid addresses this challenge!
+Finite element simulation data is inherently tied to integration points, which are distributed according to the mesh used in the simulation.
+By other words, we can say that the obtained results are mesh dependent.
+But, what if we want to know data in different points other than the ones given by the simulation mesh?
+Well, interpolating integration point data into a structured mesh grid addresses this challenge!
 
-### Brief introduction to interpolation
-Interpolation is a fundamental mathematical technique used to estimate unknown values between known data points. In the context of material parameter prediction from simulation data, interpolation helps create a continuous representation of discrete data obtained from finite element integration points. This representation is essential when mapping simulation results onto a structured grid, enabling smoother analysis and better alignment with machine learning algorithms.
+### Interpolation and its context
+Interpolation is a fundamental mathematical technique used to estimate unknown values between known data points.
+In the context of material parameter prediction through machine learning (ML) using simulation data, interpolation helps create a continuous representation of discrete data obtained from finite element integration points.
+This representation is essential when mapping simulation results onto a desired structured grid, enabling smoother and more precise data analysis.
 
-In this project, we utilize Python's `scipy.interpolate` library, specifically the `RBFInterpolator` (Radial Basis Function Interpolator) class. This choice is motivated by the library's robustness, flexibility, and efficient implementation of various interpolation methods. `RBFInterpolator` is particularly suited for scattered data interpolation, where data points are irregularly distributed in space. It also supports extrapolation, which is a crucial feature for our use case, as not all interpolation methods provide this capability.
+In this project, Python's `scipy.interpolate` library is used, specifically the `RBFInterpolator` (Radial Basis Function Interpolator) class.
+The `scipy.interpolate` library is a part of the SciPy ecosystem, which provides a collection of mathematical algorithms and convenience functions built on NumPy.
+It is widely used for performing interpolation tasks, including both univariate and multivariate data interpolation, with support for regular and scattered datasets.
 
-Previously, we explored the `griddata` class from the same library, which is also part of the **Multivariate Interpolation** family. However, `griddata` does not support extrapolation, which limited its applicability for our dataset. This limitation ultimately led us to adopt `RBFInterpolator` as the preferred choice.
+This choice is motivated by the library's robustness, flexibility, and the efficient implementation of its various interpolation methods in the context of this work.
+`RBFInterpolator` is particularly suited for scattered data interpolation, where data points are irregularly distributed in space.
+It also supports extrapolation, which is a crucial feature for this use case, as not all interpolation methods provide this capability.
 
-#### Why `RBFInterpolator`?
-
-* **Scattered Data Support:** Ideal for irregular datasets often encountered in simulation outputs.
-
-* **Flexibility:** Offers multiple radial basis functions (RBFs) to balance interpolation smoothness and accuracy.
-
-* **Scalability:** Efficient handling of large datasets, crucial for high-resolution simulation grids.
+Previously,`griddata` class (from the same library) was also explored, which is also part of the **Multivariate Interpolation** family.
+However, `griddata` does not support extrapolation, which limited its applicability for this work, making the `RBFInterpolator` class the preferred choice.
 
 ### Choosed interpolation methods and grids
 
