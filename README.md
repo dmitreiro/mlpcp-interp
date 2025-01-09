@@ -31,11 +31,23 @@ However, `griddata` does not support extrapolation, which limited its applicabil
 
 ### Choosed interpolation methods and grids
 
-* **Linear:** A computationally efficient method that assumes a piecewise linear relationship between data points. It is fast and works well for datasets where smoothness is less critical.
+The choosed interpolation methods are the following:
 
-* **Cubic:** Provides a smoother interpolation by using cubic radial basis functions. It balances smoothness and computational cost, making it suitable for many engineering applications.
+* ```linear:``` A computationally efficient method that assumes a piecewise linear relationship between data points. It is fast and works well for datasets where smoothness is less critical:\
+```-r```
 
-* **Multiquadric:** Known for its global smoothness and accuracy. It introduces a radial function that grows quadratically, allowing it to handle complex datasets with non-uniform point distributions effectively.
+* ```cubic:``` Provides a smoother interpolation by using cubic radial basis functions. It balances smoothness and computational cost:\
+```-r**3```
+
+* ```multiquadric:``` It introduces a radial function that grows quadratically, allowing it to handle complex datasets with non-uniform point distributions effectively:\
+```-sqrt(1 + r**2)```
+
+Knowing that the cruciform external dimensions are 30x30 mm, we can consider a grid using the same dimensions with a certain number of points inside of it.
+
+<div style="text-align: center;">
+  <img src="res/readme_docs/cruciform_2D_drawing.png" alt="cruciform_2D_drawing" width="500">
+</div>
+
 
 Each of these methods has its strengths and trade-offs, and the choice depends on the specific nature of the simulation data and the desired accuracy of the interpolated results. The following sections will delve into their application and performance across different grid structures.
 
