@@ -7,6 +7,25 @@
 ### Main purpose
 Based on previous scientific researches<!-- (see [bibliography](#bibliography)) -->, this project aims to study Abaqus integration point data interpolation into well defined and equally spaced mesh grid points.
 
+### Previously
+For this case study, only 1/8 of the cruciform shape is considered in the simulation, which is equivalent to final dimensions of 30x30x0.5 mm.
+
+<!-- image of the mesh elements and reduced integration points -->
+
+<!-- cruciform dimensions sketch image -->
+<p align="center">
+  <img src="res/readme_docs/cruciform_2D_drawing.png" width="500">
+</p>
+
+Simulation mesh has 564 C3D8R elements created across the considered thickness (0.5 mm), each one represented by its reduced integration point (centroid) positioned in the middle of the thickness.
+
+<!-- 2D grid interpolation points -->
+<p align="center">
+  <img src="res/readme_docs/centroids_and_nodes.png" width="500">
+</p>
+
+Knowing all the centroids coordinates for each simulation timestep allows us to interpolate values (Exx, Eyy and Exy) for the defined grid points.
+
 ### Why integration point data interpolation into a structured mesh grid?
 Finite element simulation data is inherently tied to integration points, which are distributed according to the mesh used in the simulation.
 By other words, we can say that the obtained results are mesh dependent.
@@ -26,7 +45,7 @@ This choice is motivated by the library's robustness, flexibility, and the effic
 `RBFInterpolator` is particularly suited for scattered data interpolation, where data points are irregularly distributed in space.
 It also supports extrapolation, which is a crucial feature for this use case, as not all interpolation methods provide this capability.
 
-Previously,`griddata` class (from the same library) was also explored, which is also part of the **Multivariate Interpolation** family.
+Previously, `griddata` class (from the same library) was also explored, which is also part of the **Multivariate Interpolation** family.
 However, `griddata` does not support extrapolation, which limited its applicability for this work, making the `RBFInterpolator` class the preferred choice.
 
 ### Choosed interpolation methods and grids
@@ -42,21 +61,30 @@ The choosed interpolation methods are the following:
 * ```multiquadric:``` It introduces a radial function that grows quadratically, allowing it to handle complex datasets with non-uniform point distributions effectively:\
 ```-sqrt(1 + r**2)```
 
-Knowing that the cruciform external dimensions are 30x30 mm, we can consider a grid using the same dimensions with a certain number of points inside of it.
+Considering cruciform external dimensions (30x30 mm), a grid can be defined inside a bounding square with a certain number of points inside of it. This way, 3 grids are considered:
 
-<div style="text-align: center;">
-  <img src="res/readme_docs/cruciform_2D_drawing.png" alt="cruciform_2D_drawing" width="500">
-</div>
+* 20x20: total of 400 points, 253 inside the cruciform domain (~63.3%)
+
+<!-- 2D grid interpolation points -->
+<p align="center">
+  <img src="res/readme_docs/grids.png" width="900">
+</p>
+
+* 30x30: total of 900 points, 564 inside the cruciform domain (~62.6%)
+<!-- image of the grid -->
+* 40x40: total of 1600 points, 1006 inside the cruciform domain (~62.9%)
+<!-- image of the grid -->
 
 
-Each of these methods has its strengths and trade-offs, and the choice depends on the specific nature of the simulation data and the desired accuracy of the interpolated results. The following sections will delve into their application and performance across different grid structures.
 
-### Which one should I choose?
+<!-- Each of these methods has its strengths and trade-offs, and the choice depends on the specific nature of the simulation data and the desired accuracy of the interpolated results. The following sections will delve into their application and performance across different grid structures. -->
+
+<!-- ### Which one should I choose? -->
 <!-- "re-interpolation" back to integration points -->
 <!-- predicted vs original parameter comparison -->
 <!-- global statistics and analysis -->
 
-### Bibliography
+<!-- ### Bibliography -->
 
 ***
 
