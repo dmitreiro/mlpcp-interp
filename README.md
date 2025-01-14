@@ -67,13 +67,22 @@ Considering cruciform external dimensions (30x30 mm), a grid can be defined insi
 
 <!-- 2D grid interpolation points -->
 <p align="center">
-  <img src="res/readme_docs/grids.png" width="900">
+  <img src="res/readme_docs/plot_1_grid_20x20.png" width="500">
 </p>
 
 * 30x30: total of 900 points, 564 inside the cruciform domain (~62.6%)
-<!-- image of the grid -->
+
+<!-- 2D grid interpolation points -->
+<p align="center">
+  <img src="res/readme_docs/plot_2_grid_30x30.png" width="500">
+</p>
+
 * 40x40: total of 1600 points, 1006 inside the cruciform domain (~62.9%)
-<!-- image of the grid -->
+
+<!-- 2D grid interpolation points -->
+<p align="center">
+  <img src="res/readme_docs/plot_3_grid_40x40.png" width="500">
+</p>
 
 
 
