@@ -24,7 +24,7 @@ Simulation mesh has 564 C3D8R elements created across the considered thickness (
   <img src="res/readme_docs/centroids_and_nodes.png" width="500">
 </p>
 
-Knowing all the centroids coordinates for each simulation timestep allows us to interpolate values (Exx, Eyy and Exy) for the defined grid points.
+Knowing all the centroids coordinates for each simulation timestep allows us to interpolate $\epsilon_{xx}$, $\epsilon_{yy}$ and $\epsilon_{xy}$ values for the defined grid points.
 
 ### Why integration point data interpolation into a structured mesh grid?
 Finite element simulation data is inherently tied to integration points, which are distributed according to the mesh used in the simulation.
@@ -61,38 +61,47 @@ The choosed interpolation methods are the following:
 * ```multiquadric:``` It introduces a radial function that grows quadratically, allowing it to handle complex datasets with non-uniform point distributions effectively:\
 ```-sqrt(1 + r**2)```
 
-Considering cruciform external dimensions (30x30 mm), a grid can be defined inside a bounding square with a certain number of points inside of it. This way, 3 grids are considered:
+Considering cruciform external dimensions (30x30 mm), a grid can be defined inside a bounding square with a certain number of points inside of it.
+However, from the total number of generated points, only some are inside the cruciform area (domain).
+This way, 3 grids are considered:
 
-* 20x20: total of 400 points, 253 inside the cruciform domain (~63.3%)
+* **20x20**: total of 400 points, 253 inside the cruciform domain (~63.3%)
 
 <!-- 2D grid interpolation points -->
 <p align="center">
   <img src="res/readme_docs/plot_1_grid_20x20.png" width="500">
 </p>
 
-* 30x30: total of 900 points, 564 inside the cruciform domain (~62.6%)
+* **30x30**: total of 900 points, 564 inside the cruciform domain (~62.6%)
 
 <!-- 2D grid interpolation points -->
 <p align="center">
   <img src="res/readme_docs/plot_2_grid_30x30.png" width="500">
 </p>
 
-* 40x40: total of 1600 points, 1006 inside the cruciform domain (~62.9%)
+* **40x40**: total of 1600 points, 1006 inside the cruciform domain (~62.9%)
 
 <!-- 2D grid interpolation points -->
 <p align="center">
   <img src="res/readme_docs/plot_3_grid_40x40.png" width="500">
 </p>
 
+### Methodology
 
+In total, there are 9 possible combinations to test and evaluate. All interpolations are performed using previously processed X datasets, with 2000 simulations for training and 260 simulations for testing.
+The chosen machine learning (ML) architecture is XGBoost, and the models are trained and tested using all the different interpolated datasets.
 
-<!-- Each of these methods has its strengths and trade-offs, and the choice depends on the specific nature of the simulation data and the desired accuracy of the interpolated results. The following sections will delve into their application and performance across different grid structures. -->
+### Performance evaluation
 
-<!-- ### Which one should I choose? -->
+To assess the quality of the obtained interpolations, the results are evaluated by performing a "reverse interpolation", where the interpolated data (grid) is mapped back to the original points (centroids).
+
+<!-- plot with explained results -->
+
 <!-- "re-interpolation" back to integration points -->
 <!-- predicted vs original parameter comparison -->
 <!-- global statistics and analysis -->
 
+<!-- ### Which one should I choose? -->
 <!-- ### Bibliography -->
 
 ***
