@@ -1,5 +1,6 @@
 # %% Importing libraries
 import configparser
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -10,6 +11,7 @@ config.read(r"config/config.ini")
 
 # Accessing variables
 CENT = config.get("Files", "centroids")
+PLOTS = config.get("Paths", "resources")
 
 # %% Domain region plot
 
@@ -84,6 +86,31 @@ for ax, (n_points, (x_coords, y_coords)) in zip(axes, zip(grid_sizes, coords)):
     ax.legend()  # Add a legend
     ax.grid(True)
 
-# Adjust layout and show the plots
+# Adjust layout and show the combined plots
 plt.tight_layout()
+
+# saves plot to external file
+plt.savefig(os.path.join(PLOTS, "grids_1x3_compilation.pdf"))
+
+# show plot
 plt.show()
+
+# Now display each subplot individually
+for i, (n_points, (x_coords, y_coords)) in enumerate(zip(grid_sizes, coords), start=1):
+    plt.figure(figsize=(8, 8))  # Create a new figure for each individual plot
+    # Scatter plot for the mesh grid points
+    plt.scatter(x_coords, y_coords, color="blue", s=2, label="Grid")
+    # Scatter plot for the centroids
+    plt.scatter(centroid_x, centroid_y, color="red", s=2, label="Centroids")
+    plt.title(f"Grid Size: {n_points}x{n_points}")
+    plt.xlabel("x coordinates")
+    plt.ylabel("y coordinates")
+    plt.legend()  # Add a legend
+    plt.grid(True)
+
+    # saves plot to external file
+    plt.savefig(os.path.join(PLOTS, f"grid_{n_points}x{n_points}.pdf"))
+
+    # shoes individual plot
+    plt.show()
+
