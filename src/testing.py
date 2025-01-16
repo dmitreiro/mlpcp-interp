@@ -28,7 +28,7 @@ MODELS = config.get("Paths", "models")
 Y_TEST = config.get("Files", "y_test")
 
 GRIDS = [20, 30, 40]
-METHODS = ["linear", "cubic", "multiquadric", "quintic", "gaussian", "inverse_multiquadric"]
+METHODS = ["linear", "cubic", "multiquadric"]
 
 def test_and_evaluate(grid, method, test_method):
     # IMPORT THE FILTERED DATA FOR TESTING
