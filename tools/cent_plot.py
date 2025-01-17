@@ -4,9 +4,9 @@ Tool to plot centroids and nodes.
 
 # %%
 import csv
+import os
 import configparser
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 # Reading configuration file
 config = configparser.ConfigParser()
@@ -15,6 +15,7 @@ config.read(r"config/config.ini")
 # Accessing variables
 CENT = config.get("Files", "centroids")
 ND = config.get("Files", "nodes")
+PLOT = config.get("Paths", "resources")
 
 # Initialize lists for coordinates from both files
 x_coords1, y_coords1, z_coords1 = [], [], []
@@ -61,13 +62,13 @@ ax.legend()
 ax.set_zlim(0, 5)  # Replace 0 and 1 with your desired min and max values for the z-axis
 
 # Set the orientation of the plot (optional)
-ax.view_init(elev=90, azim=-90)
+ax.view_init(elev=45, azim=-45)
 
 # Show plot
 plt.show()
 
 # %% Create a 2D plot
-plt.figure()
+plt.figure(figsize=(8,8))
 
 # Plot the first set of coordinates
 plt.scatter(x_coords1, y_coords1, c='b', marker='.', label='centroids')
@@ -84,9 +85,12 @@ plt.yticks([0, 5, 10, 15, 20, 25, 30])
 plt.grid(True)
 
 # Set labels and legend
-plt.xlabel('X')
-plt.ylabel('Y')
+plt.xlabel('X (mm)')
+plt.ylabel('Y (mm)')
 plt.legend()
+
+# saves plot to external file
+plt.savefig(os.path.join(PLOT, "centroids_and_nodes.pdf"))
 
 # Show plot
 plt.show()
