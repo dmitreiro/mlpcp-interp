@@ -1,6 +1,7 @@
 import numpy as np
 import configparser
 import csv
+import os
 import matplotlib.pyplot as plt
 
 # Reading configuration file
@@ -8,12 +9,13 @@ config = configparser.ConfigParser()
 config.read(r"config/config.ini")
 
 # Accessing variables
-#DATA = config.get("Paths", "data_cleaned")
+DATA = config.get("Paths", "data_cleaned")
 INT_P = config.get("Files", "centroids")
 X_TRAIN = config.get("Files", "x_train")
+PLOT = config.get("Paths", "resources")
 
 GRIDS = [20, 30, 40]
-METHODS = ["quintic", "gaussian", "inverse_multiquadric"]
+METHODS = ["linear", "cubic", "multiquadric"]
 
 def mesh_gen(n_points: int):
     """
@@ -58,85 +60,67 @@ def mesh_gen(n_points: int):
     
     return x_coords, y_coords
 
-x_grid, y_grid = mesh_gen(30)
-
-# Importing x,y coordinates of element's reduced integration points (centroids) into separate arrays.
-# Initialize arrays
-x = []
-y = []
-# Read the CSV file
+# Importing centroid coordinates
+x_centroids, y_centroids = [], []
 with open(INT_P, 'r') as file:
     reader = csv.reader(file)
     for row in reader:
-        x.append(row[0])  # First column
-        y.append(row[1])  # Second column
+        x_centroids.append(float(row[0]))
+        y_centroids.append(float(row[1]))
 
-# Convert to float array
-x = np.array(x, dtype=float)
-y = np.array(y, dtype=float)
+x_centroids = np.array(x_centroids)
+y_centroids = np.array(y_centroids)
 
-# Get exx values from original train dataset
+# Original exx values
+x_ori_exx = []
 with open(X_TRAIN, 'r') as file:
     reader = csv.reader(file)
     header = next(reader)
     row = next(reader)
-    x_ori_exx = []
-    # print(int(len(row)-(len(row)/20-2)))
-    for i in range(len(row)-(int(len(row)/20)-2), len(row), 3):
-        x_ori_exx.append(row[i])
+    for i in range(len(row) - (int(len(row)/20) - 2), len(row), 3):
+        x_ori_exx.append(float(row[i]))
+x_ori_exx = np.array(x_ori_exx)
+
+# Determine global color scale
+global_min, global_max = x_ori_exx.min(), x_ori_exx.max()
 
 
-# Get exx values from interpolated train dataset
-with open("/home/dmitreiro/MLCCM/data/cleaned/x_train_30_inverse_multiquadric.csv", 'r') as file:
-    reader = csv.reader(file)
-    header = next(reader)
-    row = next(reader)
-    x_int_exx= []
-    # print(int(len(row)-(len(row)/20-2)))
-    for i in range(len(row)-(int(len(row)/20)-2), len(row), 3):
-        x_int_exx.append(row[i])
+# Iterate over grid-method combinations
+for grid in GRIDS:
+    x_grid, y_grid = mesh_gen(grid)
+    for method in METHODS:
+        interpolated_file = f"x_train_{grid}_{method}.csv"
 
-# Ensure both are float
-x_ori_exx = np.array(x_ori_exx, dtype=float)
-x_int_exx = np.array(x_int_exx, dtype=float)
+        # Interpolated exx values
+        x_int_exx = []
+        with open(os.path.join(DATA, interpolated_file), 'r') as file:
+            reader = csv.reader(file)
+            header = next(reader)
+            row = next(reader)
+            for i in range(len(row) - (int(len(row)/20) - 2), len(row), 3):
+                x_int_exx.append(float(row[i]))
+        x_int_exx = np.array(x_int_exx)
 
-# Combine values to determine the global color scale
-all_values = np.concatenate([x_ori_exx, x_int_exx])  # Combine both datasets
-ori_min, ori_max = x_ori_exx.min(), x_ori_exx.max()
-int_min, int_max = x_int_exx.min(), x_int_exx.max()
-vmin, vmax = all_values.min(), all_values.max()  # Global min and max
+        # Update global color scale
+        global_min = min(global_min, x_int_exx.min())
+        global_max = max(global_max, x_int_exx.max())
 
-# Create the plot
-plt.figure(figsize=(12, 10))
+        # Create the plot
+        plt.figure(figsize=(10, 8))
+        scatter1 = plt.scatter(x_centroids, y_centroids, c=x_ori_exx, cmap='Reds', s=200, edgecolor='k',
+                               vmin=global_min, vmax=global_max, label='Centroids', marker='^')
+        scatter2 = plt.scatter(x_grid, y_grid, c=x_int_exx, cmap='Reds', s=70, edgecolor='k',
+                               vmin=global_min, vmax=global_max, label=f'Interpolated ({method})')
 
-scatter1 = NotImplemented
-scatter2 = NotImplemented
+        # Add colorbar
+        cbar = plt.colorbar(scatter2, label='Epsilon_xx')
+        plt.title(f'Grid {grid}, Method: {method}')
 
-# Plot the first set of points
-#scatter1 = plt.scatter(x, y, c=x_ori_exx, cmap='Reds', s=50, edgecolor='k', vmin=ori_min, vmax=ori_max, label='Centroids')
-# print(xx.shape, yy.shape, x_cent_exx.shape)
+        # Set labels and legend
+        plt.xlabel('X Coordinate')
+        plt.ylabel('Y Coordinate')
+        plt.legend(loc='upper right')
 
-# Plot the second set of points
-scatter2 = plt.scatter(x_grid, y_grid, c=x_int_exx, cmap='Reds', s=50, edgecolor='k', vmin=int_min, vmax=int_max, label='Int. points')
-
-# Add a single colorbar for both sets
-if scatter1 != NotImplemented and scatter2 != NotImplemented:
-    cbar = plt.colorbar(scatter1, label='Original Epsilon_xx')
-    cbar2 = plt.colorbar(scatter2, label='Interpolated Epsilon_xx')
-    plt.title('Original and interpolated data comparison')
-elif scatter1 != NotImplemented:
-    cbar = plt.colorbar(scatter1, label='Original Epsilon_xx')
-    plt.title('Original data plot')
-elif scatter2 != NotImplemented:
-    cbar = plt.colorbar(scatter2, label='Interpolated Epsilon_xx')
-    plt.title('Interpolated data plot')
-
-# Set labels and title
-plt.xlabel('X Coordinate')
-plt.ylabel('Y Coordinate')
-
-# Add a legend
-# plt.legend(loc='upper right')
-
-# Show the plot
-plt.show()
+        # Save plot
+        plt.savefig(os.path.join(PLOT, f'plot_grid_{grid}_method_{method}.pdf'))
+        plt.close()
