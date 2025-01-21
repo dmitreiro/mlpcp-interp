@@ -96,6 +96,11 @@ def test_and_evaluate(grid, method, test_method):
     print(f'MAE on {test_method} test for {grid}_{method} model: {mae_test}')
     print(f'MAPE on {test_method} test for {grid}_{method} model: {mape_test}')
 
+    # saves predicted y data to csv file
+    pred_params_path = os.path.join(DATA, f"y_pred_{grid}_{method}_{test_method}.csv")
+    df = pd.DataFrame(y_test_pred)
+    df.to_csv(pred_params_path, mode="w", header=True, index=False)
+
     return {
         "grid": grid,
         "model_method": method,
