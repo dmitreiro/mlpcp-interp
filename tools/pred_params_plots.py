@@ -4,6 +4,8 @@ import configparser
 import os
 import matplotlib.pyplot as plt
 
+from sklearn.metrics import r2_score, mean_absolute_error
+
 # Reading configuration file
 config = configparser.ConfigParser()
 config.read(r"config/config.ini")
@@ -69,18 +71,32 @@ def generate_comparison_plots(grid, method, test_method):
             ax = axes[idx]
             ax.scatter(
                 y_test[column], y_pred[column],
-                label=f"Parameter: {column}", s=10, color='black'
+                s=10, color='black'#, label=f"Parameter: {column}"
             )
             ax.plot(
                 [y_test[column].min(), y_test[column].max()],
                 [y_test[column].min(), y_test[column].max()],
-                color='red', label='Ideal Line'
+                color='red'#, label='Ideal Line'
             )
 
-            ax.set_xlabel("Original (y_test)")
-            ax.set_ylabel("Predicted (y_pred)")
-            ax.legend(loc='upper left', fontsize='small')
-            ax.set_title(f"Comparison for {column}")
+            # Calculate R^2 and MAE
+            r2 = r2_score(y_test[column], y_pred[column])
+            mae = mean_absolute_error(y_test[column], y_pred[column])
+
+            # Add R^2 and MAE as text in the top left corner
+            ax.text(
+                0.05, 0.95,
+                f"$R^2$: {r2:.3f}\nMAE: {mae:.3f}",
+                transform=ax.transAxes,
+                fontsize=10,
+                verticalalignment='top',
+                bbox=dict(boxstyle="round,pad=0.3", edgecolor='black', facecolor='white')
+            )
+
+            ax.set_xlabel(f"{column} simulated")
+            ax.set_ylabel(f"{column} predicted")
+            #ax.legend(loc='upper left', fontsize='small')
+            #ax.set_title(f"{column}")
 
         # Hide any unused subplots
         for idx in range(num_params, len(axes)):
