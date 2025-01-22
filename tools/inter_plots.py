@@ -104,10 +104,12 @@ for grid in GRIDS:
         global_min = min(global_min, np.nanmin(x_int_exx))
         global_max = max(global_max, np.nanmax(x_int_exx))
 
-        # Create the plots
-        fig, ax = plt.subplots(1, 2, figsize=(18, 8))
+        # Create the plots with constrained_layout enabled
+        fig, ax = plt.subplots(1, 2, figsize=(18, 8), 
+                               gridspec_kw={'width_ratios': [1, 1], 'wspace': 0.1},
+                               constrained_layout=True)
 
-        # Plot 1: Interpolated data represented with scatter
+        # define element size according to grid
         match grid:
             case 20:
                 size = 900
@@ -117,23 +119,24 @@ for grid in GRIDS:
                 size = 250
             case _:
                 size = 50
-            
+        
+        # Plot 1: Interpolated data represented with scatter
         scatter1 = ax[0].scatter(x_coords, y_coords, c=x_int_exx, cmap='jet', s=size, alpha=0.9, edgecolors='none', vmin=global_min, vmax=global_max)
-
-        ax[0].set_title(f'Grid {grid}, {method} method')
-        ax[0].set_xlabel('X coordinate (mm)')
-        ax[0].set_ylabel('Y coordinate (mm)')
-        cbar1 = fig.colorbar(scatter1, ax=ax[0], label=r'$\varepsilon_{xx}$')
+        ax[0].set_title(f'{grid}x{grid}, {method}')
+        ax[0].set_xlabel('X (mm)')
+        ax[0].set_ylabel('Y (mm)')
+        # cbar1 = fig.colorbar(scatter1, ax=ax[0], label=r'$\varepsilon_{xx}$')
 
         # Plot 2: Centroids represented with scatter
-        scatter = ax[1].scatter(x_centroids, y_centroids, c=x_ori_exx, cmap='jet', s=450, alpha=0.9, edgecolors='none', vmin=global_min, vmax=global_max)
+        scatter2 = ax[1].scatter(x_centroids, y_centroids, c=x_ori_exx, cmap='jet', s=450, alpha=0.9, edgecolors='none', vmin=global_min, vmax=global_max)
         ax[1].set_title(f'Centroids')
-        ax[1].set_xlabel('X coordinate (mm)')
-        ax[1].set_ylabel('Y coordinate (mm)')
-        cbar2 = fig.colorbar(scatter, ax=ax[1], label=r'$\varepsilon_{xx}$')
+        ax[1].set_xlabel('X (mm)')
+        ax[1].set_ylabel('Y (mm)')
+        # cbar2 = fig.colorbar(scatter, ax=ax[1], label=r'$\varepsilon_{xx}$')
 
+        # Add a single shared colorbar for both plots
+        cbar = fig.colorbar(scatter2, ax=ax, label=r'$\varepsilon_{xx}$')
 
-        # Save plot
-        plt.tight_layout()
+        # saves and closes plot
         plt.savefig(os.path.join(PLOT, f'interp_{grid}_{method}.pdf'))
         plt.close()
