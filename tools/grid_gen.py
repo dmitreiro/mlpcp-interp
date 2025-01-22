@@ -80,9 +80,9 @@ for ax, (n_points, (x_coords, y_coords)) in zip(axes, zip(grid_sizes, coords)):
     ax.scatter(x_coords, y_coords, color="blue", s=2, label="Grid")
     # Scatter plot for the centroids
     ax.scatter(centroid_x, centroid_y, color="red", s=2, label="Centroids")
-    ax.set_title(f"Grid Size: {n_points}x{n_points}")
-    ax.set_xlabel("x coordinates")
-    ax.set_ylabel("y coordinates")
+    ax.set_title(f"Grid: {n_points}x{n_points}")
+    ax.set_xlabel("X (mm)")
+    ax.set_ylabel("Y (mm)")
     ax.legend()  # Add a legend
     ax.grid(True)
 
@@ -90,7 +90,7 @@ for ax, (n_points, (x_coords, y_coords)) in zip(axes, zip(grid_sizes, coords)):
 plt.tight_layout()
 
 # saves plot to external file
-plt.savefig(os.path.join(PLOTS, "grids_1x3_compilation.pdf"))
+plt.savefig(os.path.join(PLOTS, "grid_1x3_compilation.pdf"))
 
 # show plot
 plt.show()
@@ -102,9 +102,9 @@ for i, (n_points, (x_coords, y_coords)) in enumerate(zip(grid_sizes, coords), st
     plt.scatter(x_coords, y_coords, color="blue", s=2, label="Grid")
     # Scatter plot for the centroids
     plt.scatter(centroid_x, centroid_y, color="red", s=2, label="Centroids")
-    plt.title(f"Grid Size: {n_points}x{n_points}")
-    plt.xlabel("x coordinates")
-    plt.ylabel("y coordinates")
+    plt.title(f"Grid: {n_points}x{n_points}")
+    plt.xlabel("X (mm)")
+    plt.ylabel("Y (mm)")
     plt.legend()  # Add a legend
     plt.grid(True)
 
