@@ -92,9 +92,6 @@ plt.tight_layout()
 # saves plot to external file
 plt.savefig(os.path.join(PLOTS, "grid_1x3_compilation.pdf"))
 
-# show plot
-plt.show()
-
 # Now display each subplot individually
 for i, (n_points, (x_coords, y_coords)) in enumerate(zip(grid_sizes, coords), start=1):
     plt.figure(figsize=(8, 8))  # Create a new figure for each individual plot
@@ -110,7 +107,3 @@ for i, (n_points, (x_coords, y_coords)) in enumerate(zip(grid_sizes, coords), st
 
     # saves plot to external file
     plt.savefig(os.path.join(PLOTS, f"grid_{n_points}x{n_points}.pdf"))
-
-    # shoes individual plot
-    plt.show()
-
