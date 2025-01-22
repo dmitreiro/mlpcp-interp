@@ -77,17 +77,16 @@ with open(X_TRAIN, 'r') as file:
     reader = csv.reader(file)
     header = next(reader)
     row = next(reader)
-    for i in range(len(row) - (int(len(row)/20) - 2), len(row), 3):
+    for i in range(len(row) - (int(len(row) / 20) - 2), len(row), 3):
         x_ori_exx.append(float(row[i]))
 x_ori_exx = np.array(x_ori_exx)
 
 # Determine global color scale
 global_min, global_max = x_ori_exx.min(), x_ori_exx.max()
 
-
 # Iterate over grid-method combinations
 for grid in GRIDS:
-    x_grid, y_grid = mesh_gen(grid)
+    x_coords, y_coords = mesh_gen(grid)
     for method in METHODS:
         interpolated_file = f"x_train_{grid}_{method}.csv"
 
@@ -97,30 +96,44 @@ for grid in GRIDS:
             reader = csv.reader(file)
             header = next(reader)
             row = next(reader)
-            for i in range(len(row) - (int(len(row)/20) - 2), len(row), 3):
+            for i in range(len(row) - (int(len(row) / 20) - 2), len(row), 3):
                 x_int_exx.append(float(row[i]))
         x_int_exx = np.array(x_int_exx)
 
         # Update global color scale
-        global_min = min(global_min, x_int_exx.min())
-        global_max = max(global_max, x_int_exx.max())
+        global_min = min(global_min, np.nanmin(x_int_exx))
+        global_max = max(global_max, np.nanmax(x_int_exx))
 
-        # Create the plot
-        plt.figure(figsize=(10, 8))
-        scatter1 = plt.scatter(x_centroids, y_centroids, c=x_ori_exx, cmap='Reds', s=200, edgecolor='k',
-                               vmin=global_min, vmax=global_max, label='Centroids', marker='^')
-        scatter2 = plt.scatter(x_grid, y_grid, c=x_int_exx, cmap='Reds', s=70, edgecolor='k',
-                               vmin=global_min, vmax=global_max, label=f'Interpolated ({method})')
+        # Create the plots
+        fig, ax = plt.subplots(1, 2, figsize=(18, 8))
 
-        # Add colorbar
-        cbar = plt.colorbar(scatter2, label='Epsilon_xx')
-        plt.title(f'Grid {grid}, Method: {method}')
+        # Plot 1: Interpolated data represented with scatter
+        match grid:
+            case 20:
+                size = 900
+            case 30:
+                size = 450
+            case 40:
+                size = 250
+            case _:
+                size = 50
+            
+        scatter1 = ax[0].scatter(x_coords, y_coords, c=x_int_exx, cmap='jet', s=size, alpha=0.9, edgecolors='none', vmin=global_min, vmax=global_max)
 
-        # Set labels and legend
-        plt.xlabel('X Coordinate')
-        plt.ylabel('Y Coordinate')
-        plt.legend(loc='upper right')
+        ax[0].set_title(f'Grid {grid}, {method} method')
+        ax[0].set_xlabel('X coordinate (mm)')
+        ax[0].set_ylabel('Y coordinate (mm)')
+        cbar1 = fig.colorbar(scatter1, ax=ax[0], label=r'$\varepsilon_{xx}$')
+
+        # Plot 2: Centroids represented with scatter
+        scatter = ax[1].scatter(x_centroids, y_centroids, c=x_ori_exx, cmap='jet', s=450, alpha=0.9, edgecolors='none', vmin=global_min, vmax=global_max)
+        ax[1].set_title(f'Centroids')
+        ax[1].set_xlabel('X coordinate (mm)')
+        ax[1].set_ylabel('Y coordinate (mm)')
+        cbar2 = fig.colorbar(scatter, ax=ax[1], label=r'$\varepsilon_{xx}$')
+
 
         # Save plot
-        plt.savefig(os.path.join(PLOT, f'plot_grid_{grid}_method_{method}.pdf'))
+        plt.tight_layout()
+        plt.savefig(os.path.join(PLOT, f'interp_{grid}_{method}.pdf'))
         plt.close()
