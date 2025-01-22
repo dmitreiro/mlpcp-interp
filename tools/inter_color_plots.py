@@ -123,17 +123,17 @@ for grid in GRIDS:
         ax[0].set_title(f'Grid {grid}, {method} method')
         ax[0].set_xlabel('X coordinate (mm)')
         ax[0].set_ylabel('Y coordinate (mm)')
-        cbar1 = fig.colorbar(scatter1, ax=ax[0], label='Epsilon_xx')
+        cbar1 = fig.colorbar(scatter1, ax=ax[0], label=r'$\varepsilon_{xx}$')
 
         # Plot 2: Centroids represented with scatter
         scatter = ax[1].scatter(x_centroids, y_centroids, c=x_ori_exx, cmap='jet', s=450, alpha=0.9, edgecolors='none', vmin=global_min, vmax=global_max)
         ax[1].set_title(f'Centroids')
         ax[1].set_xlabel('X coordinate (mm)')
         ax[1].set_ylabel('Y coordinate (mm)')
-        cbar2 = fig.colorbar(scatter, ax=ax[1], label='Epsilon_xx')
+        cbar2 = fig.colorbar(scatter, ax=ax[1], label=r'$\varepsilon_{xx}$')
 
 
         # Save plot
         plt.tight_layout()
-        plt.savefig(os.path.join(PLOT, f'interp_pcolor_{grid}_{method}.pdf'))
+        plt.savefig(os.path.join(PLOT, f'interp_{grid}_{method}.pdf'))
         plt.close()
