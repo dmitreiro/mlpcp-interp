@@ -1,5 +1,6 @@
 import configparser
 import os
+import inspect
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -17,10 +18,12 @@ DATA = config.get("Paths", "data_cleaned")
 REV_METRICS = os.path.join(DATA, "inverse_prediction_metrics.csv")
 
 # path to save plots
-TST_SIMPLE_BYMETHOD_PLOT = os.path.join(PLOT, "tst_metrics_simple_bymethod_plot.pdf")
-TST_SIMPLE_BYGRID_PLOT = os.path.join(PLOT, "tst_metrics_simple_bygrid_plot.pdf")
-TST_CROSS_PLOT = os.path.join(PLOT, "tst_metrics_cross_plot.pdf")
-REV_PLOT = os.path.join(PLOT, "rev_inter_test_plots.pdf")
+TST_SIMPLE_BYMETHOD_PLOT = os.path.join(PLOT, "tst_simple_bymethod_metrics.pdf")
+TST_SIMPLE_BYGRID_PLOT = os.path.join(PLOT, "tst_simple_bygrid_metrics.pdf")
+TST_CROSS_BYMETHOD_PLOT = os.path.join(PLOT, "tst_cross_bymethod_metrics.pdf")
+TST_CROSS_BYGRID_PLOT = os.path.join(PLOT, "tst_cross_bygrid_metrics.pdf")
+REV_INTERP_BYMETHOD_PLOT = os.path.join(PLOT, "rev_interp_bymethod_metrics.pdf")
+REV_INTERP_BYGRID_PLOT = os.path.join(PLOT, "rev_interp_bygrid_metrics.pdf")
 
 def tst_simple_bymethod_plot():
     # Load the data from the CSV file
@@ -34,7 +37,7 @@ def tst_simple_bymethod_plot():
 
     # Set up the plotting grid
     fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharey=False)
-    fig.canvas.manager.set_window_title("By method plot")
+    fig.canvas.manager.set_window_title(f"{inspect.stack()[0][3]}")
 
     # Define metrics and titles
     metrics = ["r2", "mae", "mape"]
@@ -65,7 +68,7 @@ def tst_simple_bymethod_plot():
     plt.tight_layout()
 
     # saves plot to external file
-    plt.savefig(TST_SIMPLE_BYMETHOD_PLOT, format="pdf")
+    plt.savefig(TST_SIMPLE_BYMETHOD_PLOT)
 
     # shows plot
     plt.show()
@@ -83,7 +86,7 @@ def tst_simple_bygrid_plot():
 
     # Set up the plotting grid
     fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharey=False)
-    fig.canvas.manager.set_window_title("By grid plot")
+    fig.canvas.manager.set_window_title(f"{inspect.stack()[0][3]}")
 
     # Define metrics and titles
     metrics = ["r2", "mae", "mape"]
@@ -115,7 +118,7 @@ def tst_simple_bygrid_plot():
     plt.tight_layout()
 
     # saves plot to external file
-    plt.savefig(TST_SIMPLE_BYGRID_PLOT, format="pdf")
+    plt.savefig(TST_SIMPLE_BYGRID_PLOT)
 
     # shows plot
     plt.show()
@@ -129,7 +132,7 @@ def tst_cross_bymethod_plot():
 
     # Set up the plotting grid
     fig, axes = plt.subplots(3, 3, figsize=(18, 18), sharey=False)
-    fig.canvas.manager.set_window_title("Cross Data: By Method Plot")
+    fig.canvas.manager.set_window_title(f"{inspect.stack()[0][3]}")
 
     # Define metrics and titles
     metrics = ["r2", "mae", "mape"]
@@ -161,8 +164,7 @@ def tst_cross_bymethod_plot():
     plt.tight_layout()
 
     # Save plot to external file
-    cross_method_plot_path = os.path.join(PLOT, "tst_metrics_cross_bymethod_plot.pdf")
-    plt.savefig(cross_method_plot_path, format="pdf")
+    plt.savefig(TST_CROSS_BYMETHOD_PLOT)
 
     # Show plot
     plt.show()
@@ -176,7 +178,7 @@ def tst_cross_bygrid_plot():
 
     # Set up the plotting grid
     fig, axes = plt.subplots(3, 3, figsize=(18, 18), sharey=False)
-    fig.canvas.manager.set_window_title("Cross Data: By Grid Plot")
+    fig.canvas.manager.set_window_title(f"{inspect.stack()[0][3]}")
 
     # Define metrics and titles
     metrics = ["r2", "mae", "mape"]
@@ -208,8 +210,7 @@ def tst_cross_bygrid_plot():
     plt.tight_layout()
 
     # Save plot to external file
-    cross_grid_plot_path = os.path.join(PLOT, "tst_metrics_cross_bygrid_plot.pdf")
-    plt.savefig(cross_grid_plot_path, format="pdf")
+    plt.savefig(TST_CROSS_BYGRID_PLOT)
 
     # Show plot
     plt.show()
@@ -223,7 +224,7 @@ def rev_interp_bymethod_plot():
 
     # Set up the plotting grid
     fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharey=False)
-    fig.canvas.manager.set_window_title("O que eu quiser")
+    fig.canvas.manager.set_window_title(f"{inspect.stack()[0][3]}")
 
     # Define metrics and titles
     metrics = ["r2", "mae", "mape"]
@@ -254,7 +255,7 @@ def rev_interp_bymethod_plot():
     plt.tight_layout()
 
     # saves plot to external file
-    plt.savefig(REV_PLOT, format="pdf")
+    plt.savefig(REV_INTERP_BYMETHOD_PLOT)
 
     # shows plot
     plt.show()
@@ -268,7 +269,7 @@ def rev_interp_bygrid_plot():
 
     # Set up the plotting grid
     fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharey=False)
-    fig.canvas.manager.set_window_title("Reverse Interpolation: By Grid Plot")
+    fig.canvas.manager.set_window_title(f"{inspect.stack()[0][3]}")
 
     # Define metrics and titles
     metrics = ["r2", "mae", "mape"]
@@ -296,8 +297,7 @@ def rev_interp_bygrid_plot():
     plt.tight_layout()
 
     # Save plot to external file
-    rev_grid_plot_path = os.path.join(PLOT, "rev_metrics_bygrid_plot.pdf")
-    plt.savefig(rev_grid_plot_path, format="pdf")
+    plt.savefig(REV_INTERP_BYGRID_PLOT)
 
     # Show plot
     plt.show()
