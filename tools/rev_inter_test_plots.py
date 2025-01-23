@@ -20,7 +20,7 @@ REV_METRICS = os.path.join(DATA, "inverse_prediction_metrics.csv")
 TST_SIMPLE_BYMETHOD_PLOT = os.path.join(PLOT, "tst_metrics_simple_bymethod_plot.pdf")
 TST_SIMPLE_BYGRID_PLOT = os.path.join(PLOT, "tst_metrics_simple_bygrid_plot.pdf")
 TST_CROSS_PLOT = os.path.join(PLOT, "tst_metrics_cross_plot.pdf")
-REV_PLOT = os.path.join(PLOT, "inv_inter_test_plots.pdf")
+REV_PLOT = os.path.join(PLOT, "rev_inter_test_plots.pdf")
 
 def tst_simple_bymethod_plot():
     # Load the data from the CSV file
@@ -120,6 +120,100 @@ def tst_simple_bygrid_plot():
     # shows plot
     plt.show()
 
+def tst_cross_bymethod_plot():
+    # Load the data from the CSV file
+    df = pd.read_csv(TST_METRICS)
+
+    # Choose color palette
+    palette = sns.color_palette("tab10")[:3]
+
+    # Set up the plotting grid
+    fig, axes = plt.subplots(3, 3, figsize=(18, 18), sharey=False)
+    fig.canvas.manager.set_window_title("Cross Data: By Method Plot")
+
+    # Define metrics and titles
+    metrics = ["r2", "mae", "mape"]
+    titles = ["R² (Goodness of Fit)", "MAE (Mean Absolute Error)", "MAPE (Mean Absolute Percentage Error)"]
+    y_limits = [(0.8, 1.02), (0, 2.5), (0, 0.05)]  # Custom y-axis limits
+
+    # Iterate over grids and metrics to create plots
+    grids = [20, 30, 40]
+    for i, grid in enumerate(grids):
+        grid_df = df[df['grid'] == grid]
+        for j, (metric, title, ylim) in enumerate(zip(metrics, titles, y_limits)):
+            ax = axes[i, j]
+            sns.barplot(
+                data=grid_df,
+                x="model_method",
+                y=metric,
+                hue="test_method",
+                ax=ax,
+                palette=palette
+            )
+            ax.set_title(f"Grid {grid}: {title}")
+            ax.set_xlabel("Model Method")
+            ax.set_ylabel(metric.upper())
+            ax.legend(title="Test Method", loc="upper right")
+            ax.set_ylim(ylim)
+            ax.yaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Save plot to external file
+    cross_method_plot_path = os.path.join(PLOT, "tst_metrics_cross_bymethod_plot.pdf")
+    plt.savefig(cross_method_plot_path, format="pdf")
+
+    # Show plot
+    plt.show()
+
+def tst_cross_bygrid_plot():
+    # Load the data from the CSV file
+    df = pd.read_csv(TST_METRICS)
+
+    # Choose color palette
+    palette = sns.color_palette("tab10")[:3]
+
+    # Set up the plotting grid
+    fig, axes = plt.subplots(3, 3, figsize=(18, 18), sharey=False)
+    fig.canvas.manager.set_window_title("Cross Data: By Grid Plot")
+
+    # Define metrics and titles
+    metrics = ["r2", "mae", "mape"]
+    titles = ["R² (Goodness of Fit)", "MAE (Mean Absolute Error)", "MAPE (Mean Absolute Percentage Error)"]
+    y_limits = [(0.8, 1.02), (0, 2.5), (0, 0.05)]  # Custom y-axis limits
+
+    # Iterate over model methods and metrics to create plots
+    model_methods = ["linear", "cubic", "multiquadric"]
+    for i, model_method in enumerate(model_methods):
+        method_df = df[df['model_method'] == model_method]
+        for j, (metric, title, ylim) in enumerate(zip(metrics, titles, y_limits)):
+            ax = axes[i, j]
+            sns.barplot(
+                data=method_df,
+                x="grid",
+                y=metric,
+                hue="test_method",
+                ax=ax,
+                palette=palette
+            )
+            ax.set_title(f"{model_method.capitalize()} Model: {title}")
+            ax.set_xlabel("Grid")
+            ax.set_ylabel(metric.upper())
+            ax.legend(title="Test Method", loc="upper right")
+            ax.set_ylim(ylim)
+            ax.yaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Save plot to external file
+    cross_grid_plot_path = os.path.join(PLOT, "tst_metrics_cross_bygrid_plot.pdf")
+    plt.savefig(cross_grid_plot_path, format="pdf")
+
+    # Show plot
+    plt.show()
+
 def rev_interp_plt():
     # Load the data from the CSV file
     df = pd.read_csv(REV_METRICS)
@@ -168,5 +262,7 @@ def rev_interp_plt():
 if __name__ == "__main__":
     tst_simple_bymethod_plot()
     tst_simple_bygrid_plot()
+    tst_cross_bymethod_plot()
+    tst_cross_bygrid_plot()
     rev_interp_plt()
     
