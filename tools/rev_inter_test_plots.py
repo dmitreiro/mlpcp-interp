@@ -214,7 +214,7 @@ def tst_cross_bygrid_plot():
     # Show plot
     plt.show()
 
-def rev_interp_plt():
+def rev_interp_bymethod_plot():
     # Load the data from the CSV file
     df = pd.read_csv(REV_METRICS)
 
@@ -259,10 +259,53 @@ def rev_interp_plt():
     # shows plot
     plt.show()
 
+def rev_interp_bygrid_plot():
+    # Load the data from the CSV file
+    df = pd.read_csv(REV_METRICS)
+
+    # Choose color palette
+    palette = sns.color_palette("tab10")[:3]
+
+    # Set up the plotting grid
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharey=False)
+    fig.canvas.manager.set_window_title("Reverse Interpolation: By Grid Plot")
+
+    # Define metrics and titles
+    metrics = ["r2", "mae", "mape"]
+    titles = ["R² (Goodness of Fit)", "MAE (Mean Absolute Error)", "MAPE (Mean Absolute Percentage Error)"]
+    y_limits = [(0.8, 1.02), (0, 0.5), (0, 1)]  # Custom y-axis limits
+
+    # Create a plot for each metric
+    for ax, metric, title, ylim in zip(axes, metrics, titles, y_limits):
+        sns.barplot(
+            data=df,
+            x="grid",
+            y=metric,
+            hue="method",
+            ax=ax,
+            palette=palette
+        )
+        ax.set_title(title)
+        ax.set_xlabel("Grid")
+        ax.set_ylabel(metric.upper())
+        ax.legend(title="Method", loc="upper right")
+        ax.set_ylim(ylim)
+        ax.yaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Save plot to external file
+    rev_grid_plot_path = os.path.join(PLOT, "rev_metrics_bygrid_plot.pdf")
+    plt.savefig(rev_grid_plot_path, format="pdf")
+
+    # Show plot
+    plt.show()
+
 if __name__ == "__main__":
     tst_simple_bymethod_plot()
     tst_simple_bygrid_plot()
     tst_cross_bymethod_plot()
     tst_cross_bygrid_plot()
-    rev_interp_plt()
-    
+    rev_interp_bymethod_plot()
+    rev_interp_bygrid_plot()
