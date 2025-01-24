@@ -18,6 +18,7 @@ DATA = config.get("Paths", "data_cleaned")
 INT_P = config.get("Files", "centroids")
 X_TRAIN = config.get("Files", "x_train")
 X_TEST = config.get("Files", "x_test")
+REV_METRICS = config.get("Files", "rev_interp_metrics")
 
 IN_FILES = [X_TRAIN]
 GRIDS = [20, 30, 40]
@@ -207,11 +208,9 @@ def inv_interpolator(infile: str, grid: int, method: str, x: NDArray[np.float64]
 # Start the timer
 start_time = time.time()
 
-result_path = os.path.join(DATA, "inverse_prediction_metrics.csv")
-
 # Check if the file exists and delete it if it does
-if os.path.exists(result_path):
-    os.remove(result_path)
+if os.path.exists(REV_METRICS):
+    os.remove(REV_METRICS)
 
 # Importing x,y coordinates of element's reduced integration points (centroids) into separate arrays.
 # Initialize arrays
@@ -236,9 +235,9 @@ for grid in GRIDS:
             if result:  # Ensure result is not None
                 # Save results
                 result_df = pd.DataFrame([result])
-                write_header = not os.path.exists(result_path)
-                result_df.to_csv(result_path, mode="a", header=write_header, index=False)
-                print(f"Metrics saved to {result_path}")
+                write_header = not os.path.exists(REV_METRICS)
+                result_df.to_csv(REV_METRICS, mode="a", header=write_header, index=False)
+                print(f"Metrics saved to {REV_METRICS}")
 
 # End the timer and calculate elapsed time
 end_time = time.time()
