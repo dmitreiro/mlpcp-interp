@@ -81,12 +81,28 @@ def test_and_evaluate(grid, method, test_method):
         print(f"Error loading model: {e}")
         return
 
+    # Start the timer
+    start_time = time.time()
+
     # Predict training values
     try:
         y_test_pred = modelo.predict(X_test)
     except Exception as e:
         print(f"Error predicting values: {e}")
         return
+    
+    # End the timer and calculate elapsed time
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+
+    # Convert elapsed time to minutes and seconds
+    elapsed_minutes = int(elapsed_time // 60)
+    elapsed_seconds = int(elapsed_time % 60)
+
+    # Print total elapsed time in "minutes:seconds" format
+    print(
+        f"Finished testing {xgb_model} in {elapsed_minutes}:{elapsed_seconds:02d} minutes."
+    )
     
     # Performance on training data
     r2_test = r2_score(y_test, y_test_pred)
@@ -108,8 +124,12 @@ def test_and_evaluate(grid, method, test_method):
         "test_method": test_method,
         "r2": r2_test,
         "mae": mae_test,
-        "mape": mape_test
+        "mape": mape_test,
+        "testing_duration": elapsed_time
     }
+
+# Start the timer
+start_time = time.time()
 
 # Check if the file exists and delete it if it does
 if os.path.exists(METRICS):
@@ -126,3 +146,16 @@ for grid in GRIDS:
                 write_header = not os.path.exists(METRICS)
                 result_df.to_csv(METRICS, mode="a", header=write_header, index=False)
                 print(f"Testing performance metrics saved to {METRICS}")
+
+# End the timer and calculate elapsed time
+end_time = time.time()
+elapsed_time = end_time - start_time
+
+# Convert elapsed time to minutes and seconds
+elapsed_minutes = int(elapsed_time // 60)
+elapsed_seconds = int(elapsed_time % 60)
+
+# Print total elapsed time in "minutes:seconds" format
+print(
+    f"Total elapsed time: {elapsed_minutes}:{elapsed_seconds:02d} minutes."
+)
