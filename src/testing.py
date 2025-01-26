@@ -26,6 +26,7 @@ config.read(r"config/config.ini")
 DATA = config.get("Paths", "data_cleaned")
 MODELS = config.get("Paths", "models")
 Y_TEST = config.get("Files", "y_test")
+METRICS = config.get("Files", "test_metrics")
 
 GRIDS = [20, 30, 40]
 METHODS = ["linear", "cubic", "multiquadric"]
@@ -110,11 +111,9 @@ def test_and_evaluate(grid, method, test_method):
         "mape": mape_test
     }
 
-result_path = os.path.join(MODELS, "testing_performance_metrics.csv")
-
 # Check if the file exists and delete it if it does
-if os.path.exists(result_path):
-    os.remove(result_path)
+if os.path.exists(METRICS):
+    os.remove(METRICS)
 
 # Iterate over the main folder numbers and subfolder numbers to train and evaluate models
 for grid in GRIDS:
@@ -124,6 +123,6 @@ for grid in GRIDS:
             if result:  # Ensure result is not None
                 # Save results
                 result_df = pd.DataFrame([result])
-                write_header = not os.path.exists(result_path)
-                result_df.to_csv(result_path, mode="a", header=write_header, index=False)
-                print(f"Testing performance metrics saved to {result_path}")
+                write_header = not os.path.exists(METRICS)
+                result_df.to_csv(METRICS, mode="a", header=write_header, index=False)
+                print(f"Testing performance metrics saved to {METRICS}")

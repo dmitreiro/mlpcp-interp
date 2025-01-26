@@ -17,6 +17,7 @@ DATA = config.get("Paths", "data_cleaned")
 INT_P = config.get("Files", "centroids")
 X_TRAIN = config.get("Files", "x_train")
 X_TEST = config.get("Files", "x_test")
+METRICS = config.get("Files" "interp_metrics")
 
 IN_FILES = [X_TRAIN, X_TEST]
 GRIDS = [20, 30, 40]
@@ -181,10 +182,18 @@ def interpolator(infile: str, grid: int, method: str, x: NDArray[np.float64], y:
         f"Finished processing {fname} in {elapsed_minutes}:{elapsed_seconds:02d} minutes."
     )
 
-# %%
+    return {
+            "grid": grid,
+            "method": method,
+            "interpolation_duration": elapsed_time
+            }
 
 # Start the timer
 start_time = time.time()
+
+# Check if the file exists and delete it if it does
+if os.path.exists(METRICS):
+    os.remove(METRICS)
 
 # Importing x,y coordinates of element's reduced integration points (centroids) into separate arrays.
 # Initialize arrays
@@ -205,8 +214,13 @@ y = np.array(y, dtype=float)
 for grid in GRIDS:
     for method in METHODS:
         for file in IN_FILES:
-            interpolator(file, grid, method, x, y)
-    
+            result = interpolator(file, grid, method, x, y)
+            if result:  # Ensure result is not None
+                # Save results
+                result_df = pd.DataFrame([result])
+                write_header = not os.path.exists(METRICS)
+                result_df.to_csv(METRICS, mode="a", header=write_header, index=False)
+                print(f"Metrics saved to {METRICS}")
 
 # End the timer and calculate elapsed time
 end_time = time.time()

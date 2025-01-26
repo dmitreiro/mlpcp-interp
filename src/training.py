@@ -19,6 +19,7 @@ config.read(r"config/config.ini")
 DATA = config.get("Paths", "data_cleaned")
 MODELS = config.get("Paths", "models")
 Y_TRAIN = config.get("Files", "y_train")
+METRICS = config.get("Files", "train_metrics")
 
 GRIDS = [20, 30, 40]
 METHODS = ["linear", "cubic", "multiquadric"]
@@ -120,11 +121,9 @@ def train_and_evaluate(grid, method):
         "training_duration": training_duration
     }
 
-result_path = os.path.join(MODELS, "training_performance_metrics.csv")
-
 # Check if the file exists and delete it if it does
-if os.path.exists(result_path):
-    os.remove(result_path)
+if os.path.exists(METRICS):
+    os.remove(METRICS)
 
 # Iterate over the main folder numbers and subfolder numbers to train and evaluate models
 for grid in GRIDS:
@@ -133,6 +132,6 @@ for grid in GRIDS:
         if result:  # Ensure result is not None
             # Save results
             result_df = pd.DataFrame([result])
-            write_header = not os.path.exists(result_path)
-            result_df.to_csv(result_path, mode="a", header=write_header, index=False)
-            print(f"Training performance metrics saved to {result_path}")
+            write_header = not os.path.exists(METRICS)
+            result_df.to_csv(METRICS, mode="a", header=write_header, index=False)
+            print(f"Training performance metrics saved to {METRICS}")
