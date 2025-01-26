@@ -151,7 +151,7 @@ def tst_cross_bymethod_plot():
                 ax=ax,
                 palette=plt_conf["palette"]
             )
-            # ax.set_title(title)
+            ax.set_title(f"grid {grid}x{grid}")
             ax.set_xlabel("Model method")
             ax.set_ylabel(metric.upper())
             ax.legend(title="Test method", loc="upper right")
@@ -194,7 +194,7 @@ def tst_cross_bygrid_plot():
                 ax=ax,
                 palette=plt_conf["palette"]
             )
-            # ax.set_title(title)
+            ax.set_title(f"{model_method} model")
             ax.set_xlabel("Grid")
             ax.set_ylabel(metric.upper())
             ax.legend(title="Test method", loc="upper right")
