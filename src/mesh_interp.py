@@ -17,7 +17,7 @@ DATA = config.get("Paths", "data_cleaned")
 INT_P = config.get("Files", "centroids")
 X_TRAIN = config.get("Files", "x_train")
 X_TEST = config.get("Files", "x_test")
-METRICS = config.get("Files" "interp_metrics")
+METRICS = config.get("Files", "interp_metrics")
 
 IN_FILES = [X_TRAIN, X_TEST]
 GRIDS = [20, 30, 40]
