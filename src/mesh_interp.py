@@ -185,6 +185,7 @@ def interpolator(infile: str, grid: int, method: str, x: NDArray[np.float64], y:
     return {
             "grid": grid,
             "method": method,
+            "file": os.path.splitext(os.path.basename(infile))[0],
             "interpolation_duration": elapsed_time
             }
 
