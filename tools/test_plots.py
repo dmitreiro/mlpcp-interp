@@ -11,7 +11,8 @@ config.read(r"config/config.ini")
 
 # Accessing variables
 TST_METRICS = config.get("Files", "test_metrics")
-REV_METRICS = config.get("Files", "rev_interp_metrics")
+REV_INTERP_METRICS = config.get("Files", "rev_interp_metrics")
+INTERP_METRICS = config.get("Files", "interp_metrics")
 PLOT = config.get("Paths", "resources")
 DATA = config.get("Paths", "data_cleaned")
 
@@ -22,6 +23,8 @@ TST_CROSS_BYMETHOD_PLOT = os.path.join(PLOT, "tst_cross_bymethod_metrics.pdf")
 TST_CROSS_BYGRID_PLOT = os.path.join(PLOT, "tst_cross_bygrid_metrics.pdf")
 REV_INTERP_BYMETHOD_PLOT = os.path.join(PLOT, "rev_interp_bymethod_metrics.pdf")
 REV_INTERP_BYGRID_PLOT = os.path.join(PLOT, "rev_interp_bygrid_metrics.pdf")
+INTERP_TIME_METHOD_PLOT = os.path.join(PLOT, "interp_time_method_metrics.pdf")
+INTERP_TIME_GRID_PLOT = os.path.join(PLOT, "interp_time_grid_metrics.pdf")
 
 def plot_config():
     # General plot configuration
@@ -212,7 +215,7 @@ def tst_cross_bygrid_plot():
 
 def rev_interp_bymethod_plot():
     # Load the data from the CSV file
-    df = pd.read_csv(REV_METRICS)
+    df = pd.read_csv(REV_INTERP_METRICS)
 
     # load config
     plt_conf = plot_config()
@@ -253,7 +256,7 @@ def rev_interp_bymethod_plot():
 
 def rev_interp_bygrid_plot():
     # Load the data from the CSV file
-    df = pd.read_csv(REV_METRICS)
+    df = pd.read_csv(REV_INTERP_METRICS)
 
     # load config
     plt_conf = plot_config()
@@ -290,6 +293,74 @@ def rev_interp_bygrid_plot():
     # Show plot
     # plt.show()
 
+def interp_time_method_plot():
+    # Load the data from the CSV file
+    df = pd.read_csv(INTERP_METRICS)
+    aggregated_df = df.groupby(["grid", "method"], as_index=False)["interpolation_duration"].sum()
+
+    method_order = ["linear", "cubic", "multiquadric"]
+
+    # load config
+    plt_conf = plot_config()
+
+    # Plot: Method vs Time (cost-benefit analysis)
+    plt.figure(figsize=(8, 6))
+    sns.barplot(
+        data=aggregated_df,
+        x="method",
+        y="interpolation_duration",
+        hue="grid",
+        order=method_order,
+        palette=plt_conf["palette"]
+    )
+    plt.title("Method vs Time")
+    plt.xlabel("Method")
+    plt.ylabel("Interpolation duration (s)")
+    plt.legend(title="Grid", loc="upper left")
+    plt.grid(axis="y", linestyle="--", linewidth=0.5, alpha=0.7)
+    
+    # Adjust layout
+    plt.tight_layout()
+
+    # Save plot to external file
+    plt.savefig(INTERP_TIME_METHOD_PLOT)
+
+    # Show plot
+    # plt.show()
+
+def interp_time_grid_plot():
+    # Load the data from the CSV file
+    df = pd.read_csv(INTERP_METRICS)
+    aggregated_df = df.groupby(["grid", "method"], as_index=False)["interpolation_duration"].sum()
+
+    # load config
+    plt_conf = plot_config()
+
+    # Plot: Grid vs Time (cost-benefit analysis)
+    plt.figure(figsize=(8, 6))
+    sns.barplot(
+        data=aggregated_df,
+        x="grid",
+        y="interpolation_duration",
+        hue="method",
+        palette=plt_conf["palette"]
+    )
+    plt.title("Grid vs Time")
+    plt.xlabel("Grid")
+    plt.ylabel("Interpolation duration (s)")
+    plt.legend(title="Method", loc="upper left")
+    plt.grid(axis="y", linestyle="--", linewidth=0.5, alpha=0.7)
+    
+    # Adjust layout
+    plt.tight_layout()
+
+    # Save plot to external file
+    plt.savefig(INTERP_TIME_GRID_PLOT)
+
+    # Show plot
+    # plt.show()
+
+
 if __name__ == "__main__":
     tst_simple_bymethod_plot()
     tst_simple_bygrid_plot()
@@ -297,3 +368,5 @@ if __name__ == "__main__":
     tst_cross_bygrid_plot()
     rev_interp_bymethod_plot()
     rev_interp_bygrid_plot()
+    interp_time_method_plot()
+    interp_time_grid_plot()
