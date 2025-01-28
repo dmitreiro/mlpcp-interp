@@ -106,7 +106,42 @@ To assess the quality of the obtained interpolations, the results are evaluated 
 
 ## Setup
 
-Under development.
+### Clone
+
+Open terminal, change your current working directory to the location where you want the cloned directory and then clone this repository to your local machine
+
+```
+git clone https://github.com/dmitreiro/MLCCM.git
+```
+
+### Config
+
+Inside your repository home folder, edit ```config/config.ini``` file to define your paths.
+
+### Environment
+
+Next, install **Anaconda** for managing your Python environments. You can check documentation [here](https://docs.anaconda.com/anaconda/install/).\
+After the installation, create an empty environment using **Python 3.11.10**
+
+```
+conda create --name <your_env_name> python=3.11.10
+conda activate <your_env_name>
+```
+
+Then, navigate to your repository home folder and install dependencies
+
+```
+pip install -r requirements.txt
+```
+
+### Run your code
+
+Now, you are ready to rock :sunglasses:\
+Just run
+
+```
+python main.py
+```
 
 ## License
 
