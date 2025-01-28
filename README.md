@@ -3,7 +3,7 @@
 
 ***
 
-## Background
+## :open_book: Background
 ### Main purpose
 Based on previous scientific researches<!-- (see [bibliography](#bibliography)) -->, this project aims to study Abaqus integration point data interpolation into well defined and equally spaced mesh grid points.
 
@@ -104,7 +104,7 @@ To assess the quality of the obtained interpolations, the results are evaluated 
 <!-- ### Which one should I choose? -->
 <!-- ### Bibliography -->
 
-## Setup
+## :gear: Setup
 
 ### Clone
 
