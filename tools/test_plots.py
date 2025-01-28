@@ -26,6 +26,13 @@ REV_INTERP_BYGRID_PLOT = os.path.join(PLOT, "rev_interp_bygrid_metrics.pdf")
 INTERP_TIME_METHOD_PLOT = os.path.join(PLOT, "interp_time_method_metrics.pdf")
 INTERP_TIME_GRID_PLOT = os.path.join(PLOT, "interp_time_grid_metrics.pdf")
 
+plt.rcParams['axes.facecolor'] = (1, 1, 1)
+plt.rcParams['figure.facecolor'] = (1, 1, 1)
+plt.rcParams["font.family"] = "serif"
+# plt.rcParams['font.size'] = 14
+plt.rcParams["text.latex.preamble"]=r"\usepackage{amsmath}"  # Add amsmath for LaTeX math symbols
+plt.rcParams.update()
+
 def plot_config():
     # General plot configuration
     config = {
