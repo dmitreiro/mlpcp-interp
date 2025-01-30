@@ -189,49 +189,57 @@ def interpolator(infile: str, grid: int, method: str, x: NDArray[np.float64], y:
             "interpolation_duration": elapsed_time
             }
 
-# Start the timer
-start_time = time.time()
+def main():
+    """
+    Main function to start code execution.
+    """
 
-# Check if the file exists and delete it if it does
-if os.path.exists(METRICS):
-    os.remove(METRICS)
+    # Start the timer
+    start_time = time.time()
 
-# Importing x,y coordinates of element's reduced integration points (centroids) into separate arrays.
-# Initialize arrays
-x = []
-y = []
+    # Check if the file exists and delete it if it does
+    if os.path.exists(METRICS):
+        os.remove(METRICS)
 
-# Read the CSV file
-with open(INT_P, 'r') as file:
-    reader = csv.reader(file)
-    for row in reader:
-        x.append(row[0])  # First column
-        y.append(row[1])  # Second column
+    # Importing x,y coordinates of element's reduced integration points (centroids) into separate arrays.
+    # Initialize arrays
+    x = []
+    y = []
 
-# Convert to float array
-x = np.array(x, dtype=float)
-y = np.array(y, dtype=float)
+    # Read the CSV file
+    with open(INT_P, 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            x.append(row[0])  # First column
+            y.append(row[1])  # Second column
 
-for grid in GRIDS:
-    for method in METHODS:
-        for file in IN_FILES:
-            result = interpolator(file, grid, method, x, y)
-            if result:  # Ensure result is not None
-                # Save results
-                result_df = pd.DataFrame([result])
-                write_header = not os.path.exists(METRICS)
-                result_df.to_csv(METRICS, mode="a", header=write_header, index=False)
-                print(f"Metrics saved to {METRICS}")
+    # Convert to float array
+    x = np.array(x, dtype=float)
+    y = np.array(y, dtype=float)
 
-# End the timer and calculate elapsed time
-end_time = time.time()
-elapsed_time = end_time - start_time
+    for grid in GRIDS:
+        for method in METHODS:
+            for file in IN_FILES:
+                result = interpolator(file, grid, method, x, y)
+                if result:  # Ensure result is not None
+                    # Save results
+                    result_df = pd.DataFrame([result])
+                    write_header = not os.path.exists(METRICS)
+                    result_df.to_csv(METRICS, mode="a", header=write_header, index=False)
+                    print(f"Metrics saved to {METRICS}")
 
-# Convert elapsed time to minutes and seconds
-elapsed_minutes = int(elapsed_time // 60)
-elapsed_seconds = int(elapsed_time % 60)
+    # End the timer and calculate elapsed time
+    end_time = time.time()
+    elapsed_time = end_time - start_time
 
-# Print total elapsed time in "minutes:seconds" format
-print(
-    f"Total elapsed time: {elapsed_minutes}:{elapsed_seconds:02d} minutes."
-)
+    # Convert elapsed time to minutes and seconds
+    elapsed_minutes = int(elapsed_time // 60)
+    elapsed_seconds = int(elapsed_time % 60)
+
+    # Print total elapsed time in "minutes:seconds" format
+    print(
+        f"Total elapsed time: {elapsed_minutes}:{elapsed_seconds:02d} minutes."
+    )
+
+if __name__ == "__main__":
+    main()

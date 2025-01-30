@@ -119,34 +119,42 @@ def test_and_evaluate(grid, method, test_method):
         "testing_duration": elapsed_time
     }
 
-# Start the timer
-start_time = time.time()
+def main():
+    """
+    Main function to start code execution.
+    """
 
-# Check if the file exists and delete it if it does
-if os.path.exists(METRICS):
-    os.remove(METRICS)
+    # Start the timer
+    start_time = time.time()
 
-# Iterate over the main folder numbers and subfolder numbers to train and evaluate models
-for grid in GRIDS:
-    for method in METHODS:
-        for test_method in METHODS:
-            result = test_and_evaluate(grid, method, test_method)
-            if result:  # Ensure result is not None
-                # Save results
-                result_df = pd.DataFrame([result])
-                write_header = not os.path.exists(METRICS)
-                result_df.to_csv(METRICS, mode="a", header=write_header, index=False)
-                print(f"Testing performance metrics saved to {METRICS}")
+    # Check if the file exists and delete it if it does
+    if os.path.exists(METRICS):
+        os.remove(METRICS)
 
-# End the timer and calculate elapsed time
-end_time = time.time()
-elapsed_time = end_time - start_time
+    # Iterate over the main folder numbers and subfolder numbers to train and evaluate models
+    for grid in GRIDS:
+        for method in METHODS:
+            for test_method in METHODS:
+                result = test_and_evaluate(grid, method, test_method)
+                if result:  # Ensure result is not None
+                    # Save results
+                    result_df = pd.DataFrame([result])
+                    write_header = not os.path.exists(METRICS)
+                    result_df.to_csv(METRICS, mode="a", header=write_header, index=False)
+                    print(f"Testing performance metrics saved to {METRICS}")
 
-# Convert elapsed time to minutes and seconds
-elapsed_minutes = int(elapsed_time // 60)
-elapsed_seconds = int(elapsed_time % 60)
+    # End the timer and calculate elapsed time
+    end_time = time.time()
+    elapsed_time = end_time - start_time
 
-# Print total elapsed time in "minutes:seconds" format
-print(
-    f"Total elapsed time: {elapsed_minutes}:{elapsed_seconds:02d} minutes."
-)
+    # Convert elapsed time to minutes and seconds
+    elapsed_minutes = int(elapsed_time // 60)
+    elapsed_seconds = int(elapsed_time % 60)
+
+    # Print total elapsed time in "minutes:seconds" format
+    print(
+        f"Total elapsed time: {elapsed_minutes}:{elapsed_seconds:02d} minutes."
+    )
+
+if __name__ == "__main__":
+    main()

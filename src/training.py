@@ -121,17 +121,25 @@ def train_and_evaluate(grid, method):
         "training_duration": training_duration
     }
 
-# Check if the file exists and delete it if it does
-if os.path.exists(METRICS):
-    os.remove(METRICS)
+def main():
+    """
+    Main function to start code execution.
+    """
 
-# Iterate over the main folder numbers and subfolder numbers to train and evaluate models
-for grid in GRIDS:
-    for method in METHODS:
-        result = train_and_evaluate(grid, method)
-        if result:  # Ensure result is not None
-            # Save results
-            result_df = pd.DataFrame([result])
-            write_header = not os.path.exists(METRICS)
-            result_df.to_csv(METRICS, mode="a", header=write_header, index=False)
-            print(f"Training performance metrics saved to {METRICS}")
+    # Check if the file exists and delete it if it does
+    if os.path.exists(METRICS):
+        os.remove(METRICS)
+
+    # Iterate over the main folder numbers and subfolder numbers to train and evaluate models
+    for grid in GRIDS:
+        for method in METHODS:
+            result = train_and_evaluate(grid, method)
+            if result:  # Ensure result is not None
+                # Save results
+                result_df = pd.DataFrame([result])
+                write_header = not os.path.exists(METRICS)
+                result_df.to_csv(METRICS, mode="a", header=write_header, index=False)
+                print(f"Training performance metrics saved to {METRICS}")
+
+if __name__ == "__main__":
+    main()
