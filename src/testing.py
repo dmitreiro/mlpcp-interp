@@ -1,22 +1,13 @@
-# %%
-import pandas as pd;
-import numpy as np;
+import pandas as pd
 import os
-import random;
-import matplotlib.pyplot as plt;
-from sklearn.preprocessing import StandardScaler,MinMaxScaler;
-from sklearn.model_selection import train_test_split;
-from sklearn.linear_model import LinearRegression;
-from sklearn.metrics import mean_squared_error, r2_score,mean_absolute_error,mean_absolute_percentage_error; 
-from sklearn.ensemble import RandomForestRegressor;
-from sklearn.svm import SVR;
-import xgboost as xgb;
-from IPython.core.interactiveshell import InteractiveShell;
-from IPython.display import display;
+from sklearn.metrics import (
+    r2_score,
+    mean_absolute_error,
+    mean_absolute_percentage_error
+)
 import configparser
-import time;
-import joblib;
-from sklearn.multioutput import MultiOutputRegressor;
+import time
+import joblib
 
 # Reading configuration file
 config = configparser.ConfigParser()
