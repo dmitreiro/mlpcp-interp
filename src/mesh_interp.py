@@ -42,7 +42,7 @@ def mesh_gen(n_points: int) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
         points = np.column_stack([xx.flatten(), yy.flatten()])
     except Exception as e:
         print(f"Error generating mesh grid: {e}")
-        exit(1)
+        return None, None
 
     # conditions inside the square region
     in_main_square = (points[:, 0] >= 0) & (points[:, 0] <= 30) & (points[:, 1] >= 0) & (points[:, 1] <= 30)
@@ -93,6 +93,9 @@ def interpolator(infile: str, grid: int, method: str, x: NDArray[np.float64], y:
         os.remove(new_fname)
 
     grid_x, grid_y = mesh_gen(grid)
+
+    if grid_x == None:
+        return None
 
     # imports centroids' parameters of each test (single line) into separate arrays
     try:
@@ -161,23 +164,21 @@ def interpolator(infile: str, grid: int, method: str, x: NDArray[np.float64], y:
                     p = pd.DataFrame(bg_bf)
                     p.to_csv(new_fname, mode="a", header=False, index=False)
                     bg_bf = []
+        
+        p = pd.DataFrame(bg_bf)
+        p.to_csv(new_fname, mode="a", header=False, index=False)
 
     except Exception as e:
         print(f"Error interpolating input file: {e}")
-        exit(1)
+        return None
 
-    p = pd.DataFrame(bg_bf)
-    p.to_csv(new_fname, mode="a", header=False, index=False)
-
-    # End the timer and calculate elapsed time
+    # end the timer and calculate elapsed time in minutes and seconds
     end_time = time.time()
     elapsed_time = end_time - start_time
-
-    # Convert elapsed time to minutes and seconds
     elapsed_minutes = int(elapsed_time // 60)
     elapsed_seconds = int(elapsed_time % 60)
 
-    # Print total elapsed time in "minutes:seconds" format
+    # print total elapsed time in "minutes:seconds" format
     print(
         f"Finished processing {fname} in {elapsed_minutes}:{elapsed_seconds:02d} minutes."
     )
@@ -194,52 +195,54 @@ def main():
     Main function to start code execution.
     """
 
-    # Start the timer
+    # start timer
     start_time = time.time()
 
-    # Check if the file exists and delete it if it does
+    # checking for previous data files
     if os.path.exists(METRICS):
         os.remove(METRICS)
 
-    # Importing x,y coordinates of element's reduced integration points (centroids) into separate arrays.
-    # Initialize arrays
-    x = []
-    y = []
+    # importing x,y centroids coordinates into arrays
+    x, y = [], []
+    try:
+        with open(INT_P, 'r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                x.append(row[0])  # first column
+                y.append(row[1])  # second column
 
-    # Read the CSV file
-    with open(INT_P, 'r') as file:
-        reader = csv.reader(file)
-        for row in reader:
-            x.append(row[0])  # First column
-            y.append(row[1])  # Second column
+        # convert to float array
+        x = np.array(x, dtype=float)
+        y = np.array(y, dtype=float)
 
-    # Convert to float array
-    x = np.array(x, dtype=float)
-    y = np.array(y, dtype=float)
+    except Exception as e:
+        print(f"Error importing centroid coordinates: {e}")
+        return 1
 
     for grid in GRIDS:
         for method in METHODS:
             for file in IN_FILES:
                 result = interpolator(file, grid, method, x, y)
-                if result:  # Ensure result is not None
-                    # Save results
-                    result_df = pd.DataFrame([result])
-                    write_header = not os.path.exists(METRICS)
-                    result_df.to_csv(METRICS, mode="a", header=write_header, index=False)
-                    print(f"Metrics saved to {METRICS}")
+                if result == None:  # ensure result is not None
+                    return 1
+                # save results
+                result_df = pd.DataFrame([result])
+                write_header = not os.path.exists(METRICS)
+                result_df.to_csv(METRICS, mode="a", header=write_header, index=False)
+                print(f"Metrics saved to {METRICS}")
 
-    # End the timer and calculate elapsed time
+    # end the timer and calculate elapsed time in minutes and seconds
     end_time = time.time()
     elapsed_time = end_time - start_time
-
-    # Convert elapsed time to minutes and seconds
     elapsed_minutes = int(elapsed_time // 60)
     elapsed_seconds = int(elapsed_time % 60)
 
-    # Print total elapsed time in "minutes:seconds" format
+    # print total elapsed time in "minutes:seconds" format
     print(
         f"Total elapsed time: {elapsed_minutes}:{elapsed_seconds:02d} minutes."
     )
 
+    return 0
+
 if __name__ == "__main__":
-    main()
+    exit(main())
