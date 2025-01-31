@@ -1,37 +1,45 @@
 import telebot
 import configparser
 import subprocess
+from src import mesh_interp
 
-# Reading configuration file
+# reading config file and accessing variables
 config = configparser.ConfigParser()
-config.read(r"config/config.ini")
+try:
+    config.read(r"config/config.ini")
+    TOKEN = config.get("Telegram", "token")
+    CHAT_ID = config.get("Telegram", "chat_id")
+except Exception as e:
+    print(f"Error reading configuration file: {e}")
+    exit(1)
 
-# Accessing variables
-TOKEN = config.get("Telegram", "token")
-CHAT_ID = config.get("Telegram", "chat_id")
-
-def notify(msg):
-    # Initialize the bot
+def ntfy(msg: str) -> None:
+    """
+    Sends `msg` string to Telegram bot defined with `TOKEN` and `CHAT_ID` global variables.
+    """
+    # starting bot
     bot = telebot.TeleBot(TOKEN)
 
     try:
         bot.send_message(CHAT_ID, msg)
     except Exception as e:
-        print(f"Failed to send notification: {e}")
+        print(f"Failed to send Telegram notification: {e}")
 
 
 if __name__ == "__main__":
-    notify("Starting code")
-    notify("Running interpolation")
-    subprocess.run(["python", "src/mesh_interp.py"])
-    notify("Running reverse interpolation")
+    ntfy("Starting code")
+
+    ntfy("Running interpolation")
+    status = mesh_interp.main()
+    if status == 1:
+        ntfy("Couldn't execute interpolation... leaving")
+        exit(1)
+    
+    ntfy("Running reverse interpolation")
     subprocess.run(["python", "src/reverse_interp.py"])
-    notify("Training")
+    ntfy("Training")
     subprocess.run(["python", "src/training.py"])
-    notify("Testing")
+    ntfy("Testing")
     subprocess.run(["python", "src/testing.py"])
-    # subprocess.run(["python", "tools/inter_plots.py"])
-    # subprocess.run(["python", "src/pred_params_plots.py"])
-    # subprocess.run(["python", "src/test_plots.py"])
-    notify("Code finished!")
+    ntfy("Code finished!")
     
