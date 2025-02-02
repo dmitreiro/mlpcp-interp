@@ -7,7 +7,8 @@ import pandas as pd
 from typing import Tuple
 from numpy.typing import NDArray
 from scipy.interpolate import Rbf
-from sklearn.metrics import r2_score,mean_absolute_error,mean_absolute_percentage_error; 
+from sklearn.metrics import r2_score,mean_absolute_error,mean_absolute_percentage_error
+from mesh_interp import mesh_gen
 
 # Reading configuration file
 config = configparser.ConfigParser()
@@ -24,51 +25,6 @@ IN_FILES = [X_TRAIN]
 GRIDS = [20, 30, 40]
 METHODS = ["linear", "cubic", "multiquadric"]
 BUFF_TSHOLD = 100
-
-def mesh_gen(n_points: int) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
-    """
-    Defines mesh grid of [`n_points`x`n_points`] inside a 30x30 square
-    and filters it to fit cruciform geometry domain, returning a tuple with two
-    (`n`,) arrays (`x` and `y` coordinates) of `n` filtered points.
-    """
-
-    # Define the grid
-    x = np.linspace(0, 30, n_points)
-    y = np.linspace(0, 30, n_points)
-    xx, yy = np.meshgrid(x, y)
-    points = np.column_stack([xx.flatten(), yy.flatten()])
-
-    # Define the conditions for the region
-    in_main_square = (points[:, 0] >= 0) & (points[:, 0] <= 30) & (points[:, 1] >= 0) & (points[:, 1] <= 30)
-    out_excluded_square = ~((points[:, 0] > 15) & (points[:, 0] <= 30) & (points[:, 1] > 15) & (points[:, 1] <= 30))
-    out_excluded_circle = ((points[:, 0] - 15)**2 + (points[:, 1] - 15)**2) >= 7**2
-    in_fillet_circ_1 = ((points[:, 0] - 12.5)**2 + (points[:, 1] - 24.17)**2) <= 2.5**2
-    in_fillet_circ_2 = ((points[:, 0] - 24.17)**2 + (points[:, 1] - 12.5)**2) <= 2.5**2
-    out_square_1 = (points[:, 0] > 13.16) & (points[:, 0] < 15) & (points[:, 1] > 21.75) & (points[:, 1] < 24.17)
-    out_square_2 = (points[:, 0] > 21.75) & (points[:, 0] < 24.17) & (points[:, 1] > 13.16) & (points[:, 1] < 15)
-
-    # Keep points only within the circles for these squares
-    square_1_cond = out_square_1 & in_fillet_circ_1
-    square_2_cond = out_square_2 & in_fillet_circ_2
-
-    # Combine all conditions
-    final_region = (
-        in_main_square
-        & out_excluded_square
-        & out_excluded_circle
-        & ~out_square_1
-        & ~out_square_2
-    )
-    final_region |= square_1_cond | square_2_cond
-
-    # Extract the valid points
-    valid_points = points[final_region]
-
-    # Separate into x and y coordinates
-    x_coords = valid_points[:, 0]  # All rows, first column
-    y_coords = valid_points[:, 1]  # All rows, second column
-    
-    return x_coords, y_coords
 
 def inv_interpolator(infile: str, grid: int, method: str, x: NDArray[np.float64], y: NDArray[np.float64]):
     """
@@ -97,6 +53,9 @@ def inv_interpolator(infile: str, grid: int, method: str, x: NDArray[np.float64]
         return
 
     grid_x, grid_y = mesh_gen(grid)
+
+    if grid_x == None:
+        return None
 
     # Imports centroids' parameters of each test (single line) into separate arrays.
     with open(new_fname, mode='r') as file:
