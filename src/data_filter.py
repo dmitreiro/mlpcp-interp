@@ -4,105 +4,116 @@ import random
 from sklearn.preprocessing import StandardScaler
 import configparser
 
-# Reading configuration file
+# reading config file and accessing variables
 config = configparser.ConfigParser()
-config.read(r"config/config.ini")
-
-# Accessing variables
-X_CRUCIFORM = config.get("Files", "x_compiled")
-Y_CRUCIFORM = config.get("Files", "y_compiled")
-X_TRAIN = config.get("Files", "x_train")
-Y_TRAIN = config.get("Files", "y_train")
-X_TEST = config.get("Files", "x_test")
-Y_TEST = config.get("Files", "y_test")
+try:
+    config.read(r"config/config.ini")
+    X_CRUCIFORM = config.get("Files", "x_compiled")
+    Y_CRUCIFORM = config.get("Files", "y_compiled")
+    X_TRAIN = config.get("Files", "x_train")
+    Y_TRAIN = config.get("Files", "y_train")
+    X_TEST = config.get("Files", "x_test")
+    Y_TEST = config.get("Files", "y_test")
+except Exception as e:
+    print(f"Error reading configuration file: {e}")
+    exit(1)
 
 def main():
     """
     Main function to start code execution.
     """
 
-    # Importar ficheiro X
-    X = pd.read_csv(X_CRUCIFORM, header=None)
+    try:
+        # import X file
+        X = pd.read_csv(X_CRUCIFORM, header=None)
 
-    # Remover linhas duplicadas
-    X.drop_duplicates(inplace=True)
+        # removes duplicated lines
+        X.drop_duplicates(inplace=True)
 
-    # Remover linhas com NULL
-    X.dropna(inplace=True)
+        # removes lines with NULL
+        X.dropna(inplace=True)
 
-    # Remover Coluna 1
-    # X = X.iloc[:, 1:]
+        # removes column 1
+        # X = X.iloc[:, 1:]
 
-    # Importar ficheiro y
-    y = pd.read_csv(Y_CRUCIFORM, sep=",")
+        # import Y file
+        y = pd.read_csv(Y_CRUCIFORM, sep=",")
 
-    # Filtro de colunas
-    colunas_selecionadas = [coluna for coluna in y.columns if not coluna.startswith('Unnamed')]
-    colunas_sem_nan = [coluna for coluna in colunas_selecionadas if not y[coluna].isnull().all()]
-    y = y[colunas_sem_nan]
+        # column filter
+        colunas_selecionadas = [coluna for coluna in y.columns if not coluna.startswith('Unnamed')]
+        colunas_sem_nan = [coluna for coluna in colunas_selecionadas if not y[coluna].isnull().all()]
+        y = y[colunas_sem_nan]
+        # y=y.loc[X.index]
 
-    # y=y.loc[X.index]
+        # put columns into X
+        l=[]
+        for x in range(1,21):
+            l.append("Force_x_"+str(x))
+            l.append("Force_y_"+str(x))
+            for p in range(1,565):#numero de elementos
+                l.append("Strain_x_"+str(p)+"_"+str(x))
+                l.append("Strain_y_"+str(p)+"_"+str(x))
+                l.append("Strain_xy_"+str(p)+"_"+str(x))
+        X.columns = l
 
-    # Colocar colunas no X
-    l=[]
-    for x in range(1,21):
-        l.append("Force_x_"+str(x))
-        l.append("Force_y_"+str(x))
-        for p in range(1,565):#numero de elementos
-            l.append("Strain_x_"+str(p)+"_"+str(x))
-            l.append("Strain_y_"+str(p)+"_"+str(x))
-            l.append("Strain_xy_"+str(p)+"_"+str(x))
-    X.columns = l
+        X=X.reset_index(drop=True)
+        y=y.reset_index(drop=True)
 
-    X=X.reset_index(drop=True)
-    y=y.reset_index(drop=True)
+        # filter to ignore tests in which the force decreased from timestep 19 to 20
+        index1=X[(X["Force_y_20"]-X["Force_y_19"]>0) & (X["Force_x_20"]-X["Force_x_19"]>0)].index
+        index1
 
-    # Filtro para ignorar testes nos quais a força no último time step é inferior à penúltima
-    index1=X[(X["Force_y_20"]-X["Force_y_19"]>0) & (X["Force_x_20"]-X["Force_x_19"]>0)].index
-    index1
+        # apply filter to original dataframe to extract good simulations
+        X=X.iloc[index1]
+        y=y.iloc[index1]
 
-    # Aplicação de filtro ao dataframe original p/ extrair ensaios bons
-    X=X.iloc[index1]
-    y=y.iloc[index1]
+        # set a random seed for reproducibility
+        random_state = 42
+        np.random.seed(random_state)
 
-    # Set a random seed for reproducibility
-    random_state = 42
-    np.random.seed(random_state)
+        # calculate number of rows to delete (to get a "round number")
+        rows_to_delete = len(X) - 2600
 
-    # Calculate the number of rows to delete we do this to get a "round number"
-    # rows_to_delete = len(X) - 4750
-    rows_to_delete = len(X) - 2600
+        # randomly choose the indices to delete
+        indices_to_delete = np.random.choice(X.index, size=rows_to_delete, replace=False)
 
-    # Randomly choose the indices to delete
-    indices_to_delete = np.random.choice(X.index, size=rows_to_delete, replace=False)
+        # drop the selected indices from both X and y
+        X_reduced = X.drop(indices_to_delete)
+        y_reduced = y.drop(indices_to_delete)
 
-    # Drop the selected indices from both X and y
-    X_reduced = X.drop(indices_to_delete)
-    y_reduced = y.drop(indices_to_delete)
+        X = X_reduced
+        y = y_reduced
 
-    X = X_reduced
-    y = y_reduced
+        # scaler
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+        X_scaled = pd.DataFrame(X_scaled)
 
-    # Scaler
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    X_scaled = pd.DataFrame(X_scaled)
+        X=X.reset_index(drop=True)
+        y=y.reset_index(drop=True)
 
-    X=X.reset_index(drop=True)
-    y=y.reset_index(drop=True)
+        # separate data for train and test
+        r = random.sample(range(0, len(X)), 260) # define number of simulations to test
+        X_test = X_scaled.loc[r]
+        y_test = y.loc[r]
+        X_train = X_scaled.drop(r)
+        y_train = y.drop(r)
 
-    # Separar dados para teste e treino
-    r = random.sample(range(0, len(X)), 260) #DEFENIR O NÚMERO DE SIMULAÇÔES PARA TESTAR
-    X_test = X_scaled.loc[r]
-    y_test = y.loc[r]
-    X_train = X_scaled.drop(r)
-    y_train = y.drop(r)
+    except Exception as e:
+        print(f"Error filtering x and y cruciform data: {e}")
+        return 1
 
     # save data to csv
-    X_train.to_csv(X_TRAIN, index=False)
-    y_train.to_csv(Y_TRAIN, index=False)
-    X_test.to_csv(X_TEST, index=False)
-    y_test.to_csv(Y_TEST, index=False)
+    try:
+        X_train.to_csv(X_TRAIN, index=False)
+        y_train.to_csv(Y_TRAIN, index=False)
+        X_test.to_csv(X_TEST, index=False)
+        y_test.to_csv(Y_TEST, index=False)
+    except Exception as e:
+        print(f"Error saving x and y cruciform data: {e}")
+        return 1
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())
