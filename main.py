@@ -1,7 +1,7 @@
 import telebot
 import configparser
 import subprocess
-from src import mesh_interp
+from src import mesh_interp, reverse_interp
 
 # reading config file and accessing variables
 config = configparser.ConfigParser()
@@ -34,9 +34,12 @@ if __name__ == "__main__":
     if status == 1:
         ntfy("Couldn't execute interpolation... leaving")
         exit(1)
-    
+
     ntfy("Running reverse interpolation")
-    subprocess.run(["python", "src/reverse_interp.py"])
+    status = reverse_interp.main()
+    if status == 1:
+        ntfy("Couldn't execute reverse interpolation")
+    
     ntfy("Training")
     subprocess.run(["python", "src/training.py"])
     ntfy("Testing")
