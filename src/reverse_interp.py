@@ -143,10 +143,14 @@ def inv_interpolator(infile: str, grid: int, method: str, x: NDArray[np.float64]
         return None
     
     # calculates metrics
-    r2 = r2_score(ori, predict)
-    mae = mean_absolute_error(ori, predict)
-    mape = mean_absolute_percentage_error(ori, predict)
-
+    try:
+        r2 = r2_score(ori, predict)
+        mae = mean_absolute_error(ori, predict)
+        mape = mean_absolute_percentage_error(ori, predict)
+    except Exception as e:
+        print(f"Error calculating performance metrics: {e}")
+        return
+    
     print(f'R-squared on {method} method for {grid} grid: {r2}')
     print(f'MAE on {method} method for {grid} grid: {mae}')
     print(f'MAPE on {method} method for {grid} grid: {mape}')
@@ -178,7 +182,7 @@ def main():
     # start timer
     start_time = time.time()
 
-    # Check if the file exists and delete it if it does
+    # checking for previous data files
     if os.path.exists(REV_METRICS):
         os.remove(REV_METRICS)
 
