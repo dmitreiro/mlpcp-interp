@@ -1,4 +1,4 @@
-# %% Importing libraries
+# Importing libraries
 import configparser
 import os
 import numpy as np
@@ -11,10 +11,24 @@ config.read(r"config/config.ini")
 
 # Accessing variables
 CENT = config.get("Files", "centroids")
-PLOTS = config.get("Paths", "resources")
+PLOT = config.get("Paths", "resources")
 
-# %% Domain region plot
+# path to save plots
+GRIDS_COMPILATION = os.path.join(PLOT, "grids_compilation.pdf")
 
+plt.rcParams.update({
+    "text.usetex": True,
+    "text.latex.preamble": r"\usepackage{amsmath}",
+    "axes.facecolor": (1,1,1),
+    "figure.facecolor": (1,1,1),
+    # "font.family": "serif",
+    "font.family": "Palatino",
+    "font.size": 8,
+    "legend.fontsize": 6,
+    "legend.edgecolor": "black"
+})
+
+# Domain region plot
 def mesh_gen(n_points: int):
     """
     Function to define mesh grid for interpolation.
@@ -58,7 +72,6 @@ def mesh_gen(n_points: int):
     
     return x_coords, y_coords
 
-
 # Load the centroids
 centroids = pd.read_csv(CENT, header=None)  # Assuming no header
 centroid_x = centroids.iloc[:, 0]  # First column
@@ -67,30 +80,79 @@ centroid_y = centroids.iloc[:, 1]  # Second column
 # Generate the coordinates for different grid sizes
 grid_sizes = [20, 30, 40]
 coords = [mesh_gen(n_points) for n_points in grid_sizes]
-print(f"Mesh grid 20: {len(coords[0][0])}/{grid_sizes[0]*grid_sizes[0]} points ({(len(coords[0][0])/(grid_sizes[0]*grid_sizes[0]))*100}%)")
-print(f"Mesh grid 30: {len(coords[1][0])}/{grid_sizes[1]*grid_sizes[1]} points ({(len(coords[1][0])/(grid_sizes[1]*grid_sizes[1]))*100}%)")
-print(f"Mesh grid 40: {len(coords[2][0])}/{grid_sizes[2]*grid_sizes[2]} points ({(len(coords[2][0])/(grid_sizes[2]*grid_sizes[2]))*100}%)")
 
-# Create the plots
-fig, axes = plt.subplots(1, 3, figsize=(18, 6))  # 1 row, 3 columns of subplots
+# print total points vs points inside domain
+print(
+    f"Mesh grid 20: {len(coords[0][0])}/{grid_sizes[0]*grid_sizes[0]} "
+    f"points ({(len(coords[0][0])/(grid_sizes[0]*grid_sizes[0]))*100}%)"
+)
+print(
+    f"Mesh grid 30: {len(coords[1][0])}/{grid_sizes[1]*grid_sizes[1]} "
+    f"points ({(len(coords[1][0])/(grid_sizes[1]*grid_sizes[1]))*100}%)"
+)
+print(
+    f"Mesh grid 40: {len(coords[2][0])}/{grid_sizes[2]*grid_sizes[2]} "
+    f"points ({(len(coords[2][0])/(grid_sizes[2]*grid_sizes[2]))*100}%)"
+)
+
+# Define figure size
+fig_width_in = 13.7 / 2.54  # Convert cm to inches
+subplot_size = fig_width_in / 2  # Each subplot should be square
+fig_height_in = subplot_size * 2  # Ensuring square aspect ratio
+
+# Create the figure with a 2-row, 2-column grid (all plots are the same size)
+fig, axes = plt.subplots(2, 2, figsize=(fig_width_in, fig_height_in),
+                         gridspec_kw={'width_ratios': [1, 1], 'height_ratios': [1, 1]})
+
+# Assign subplots
+ax1, ax2, ax3, ax_empty = axes.flatten()
+
+# Remove the empty subplot (bottom-right)
+fig.delaxes(ax_empty)
+
+# List of active axes
+plot_axes = [ax1, ax2, ax3]
+
+# Adjust subplot spacing
+plt.subplots_adjust(left=0.02, right=1.02, top=0.92, hspace=0.5, wspace=-0.1)
+
+# labels for each subplot
+letters = [r"\textbf{(a)}", r"\textbf{(b)}", r"\textbf{(c)}"]
+positions = [(0.12, 0.97), (0.59, 0.97), (0.12, 0.48)]
+
+for letter, (x_pos, y_pos) in zip(letters, positions):
+    fig.text(x_pos, y_pos, letter,
+             verticalalignment="top", horizontalalignment="left")
+
+# Define consistent axis limits and tick intervals
+x_min, x_max = 0, 30
+y_min, y_max = 0, 30
+tick_interval = 5
+x_ticks = np.arange(x_min, x_max + tick_interval, tick_interval)
+y_ticks = np.arange(y_min, y_max + tick_interval, tick_interval)
 
 # Plot each grid
-for ax, (n_points, (x_coords, y_coords)) in zip(axes, zip(grid_sizes, coords)):
-    # Scatter plot for the mesh grid points
-    ax.scatter(x_coords, y_coords, color="blue", s=2, label="Grid")
-    # Scatter plot for the centroids
-    ax.scatter(centroid_x, centroid_y, color="red", s=2, label="Centroids")
-    ax.set_title(f"Grid: {n_points}x{n_points}")
+for ax, letter, (n_points, (x_coords, y_coords)) in zip(plot_axes, letters, zip(grid_sizes, coords)):
+    ax.scatter(x_coords, y_coords, color="blue", s=0.3, label="Grid") # grid points
+    ax.scatter(centroid_x, centroid_y, color="red", s=0.3, label="Centroids") # centroids
+    # ax.set_title(f"Grid: {n_points}x{n_points}")
     ax.set_xlabel("X (mm)")
     ax.set_ylabel("Y (mm)")
-    ax.legend()  # Add a legend
-    ax.grid(True)
+    ax.legend()
+    #ax.grid(True)
+    
+    # equal scales and ticks on both axes
+    ax.set_xlim(x_min, x_max)
+    ax.set_ylim(y_min, y_max)
+    ax.set_xticks(x_ticks)
+    ax.set_yticks(y_ticks)
+    ax.set_aspect("equal")  # force equal scaling
 
 # Adjust layout and show the combined plots
-plt.tight_layout()
+# plt.tight_layout()
 
 # saves plot to external file
-plt.savefig(os.path.join(PLOTS, "grid_1x3_compilation.pdf"))
+plt.savefig(GRIDS_COMPILATION, dpi=300)
 
 # Now display each subplot individually
 for i, (n_points, (x_coords, y_coords)) in enumerate(zip(grid_sizes, coords), start=1):
@@ -106,4 +168,4 @@ for i, (n_points, (x_coords, y_coords)) in enumerate(zip(grid_sizes, coords), st
     plt.grid(True)
 
     # saves plot to external file
-    plt.savefig(os.path.join(PLOTS, f"grid_{n_points}x{n_points}.pdf"))
+    plt.savefig(os.path.join(PLOT, f"grid_{n_points}x{n_points}.pdf"))
