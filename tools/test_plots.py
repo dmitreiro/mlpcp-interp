@@ -26,12 +26,17 @@ REV_INTERP_BYGRID_PLOT = os.path.join(PLOT, "rev_interp_bygrid_metrics.pdf")
 INTERP_TIME_METHOD_PLOT = os.path.join(PLOT, "interp_time_method_metrics.pdf")
 INTERP_TIME_GRID_PLOT = os.path.join(PLOT, "interp_time_grid_metrics.pdf")
 
-plt.rcParams['axes.facecolor'] = (1, 1, 1)
-plt.rcParams['figure.facecolor'] = (1, 1, 1)
-plt.rcParams["font.family"] = "serif"
-# plt.rcParams['font.size'] = 14
-plt.rcParams["text.latex.preamble"]=r"\usepackage{amsmath}"  # Add amsmath for LaTeX math symbols
-plt.rcParams.update()
+plt.rcParams.update({
+    "text.usetex": True,
+    "text.latex.preamble": r"\usepackage{amsmath}",
+    "axes.facecolor": (1,1,1),
+    "figure.facecolor": (1,1,1),
+    # "font.family": "serif",
+    "font.family": "Palatino",
+    "font.size": 8,
+    "legend.fontsize": 6,
+    "legend.edgecolor": "black"
+})
 
 def plot_config():
     # General plot configuration
@@ -268,14 +273,31 @@ def rev_interp_bygrid_plot():
     # load config
     plt_conf = plot_config()
 
+    # Define figure size
+    fig_width_in = 13.7 / 2.54  # Convert cm to inches
+    subplot_size = fig_width_in / 3  # Each subplot should be square
+    fig_height_in = fig_width_in / 3  # Keep aspect ratio square
+
     # Set up the plotting grid
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharey=False)
+    fig, axes = plt.subplots(1, 3, figsize=(fig_width_in, fig_height_in), sharey=False)
+    # fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharey=False)
     fig.canvas.manager.set_window_title(f"{inspect.stack()[0][3]}")
 
-    y_limits = [(0.95, 1.02), (0, 0.1), (0, 1)]  # Custom y-axis limits
+    # Adjust subplot spacing
+    plt.subplots_adjust(left=0.1, right=0.95, top=0.88, bottom=0.2, wspace=0.5)
+
+    # labels for each subplot
+    letters = [r"\textbf{(a)}", r"\textbf{(b)}", r"\textbf{(c)}"]
+    positions = [(0.1, 0.97), (0.42, 0.97), (0.737, 0.97)]
+
+    for letter, (x_pos, y_pos) in zip(letters, positions):
+        fig.text(x_pos, y_pos, letter,
+             verticalalignment="top", horizontalalignment="left")
+
+    y_limits = [(0.95, 1.04), (0, 0.1), (0, 1)]  # Custom y-axis limits
 
     # Create a plot for each metric
-    for ax, metric, title, ylim in zip(axes, plt_conf["metrics"], plt_conf["titles"], y_limits):
+    for i, (ax, metric, title, ylim) in enumerate(zip(axes, plt_conf["metrics"], plt_conf["titles"], y_limits)):
         sns.barplot(
             data=df,
             x="grid",
@@ -286,13 +308,15 @@ def rev_interp_bygrid_plot():
         )
         # ax.set_title(title)
         ax.set_xlabel("Grid")
-        ax.set_ylabel(metric.upper())
-        ax.legend(title="Method", loc="upper right")
+        ax.set_ylabel(plt_conf["titles"][i])
+        # ax.legend(title="Method", loc="upper right")
+        ax.legend(fontsize=5, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper right")
         ax.set_ylim(ylim)
         ax.yaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
+        # ax.set_aspect("equal")  # Forces equal scaling
 
     # Adjust layout
-    plt.tight_layout()
+    # plt.tight_layout()
 
     # Save plot to external file
     plt.savefig(REV_INTERP_BYGRID_PLOT)
