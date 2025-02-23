@@ -104,14 +104,31 @@ def tst_simple_bygrid_plot():
     filtered_df = df[df['model_method'] == df['test_method']]
     # filtered_df = filtered_df[df['grid'] == 20]
 
+    # Define figure size
+    fig_width_in = 13.7 / 2.54  # Convert cm to inches
+    subplot_size = fig_width_in / 3  # Each subplot should be square
+    fig_height_in = fig_width_in / 3  # Keep aspect ratio square
+
     # Set up the plotting grid
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharey=False)
+    fig, axes = plt.subplots(1, 3, figsize=(fig_width_in, fig_height_in), sharey=False)
+    # fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharey=False)
     fig.canvas.manager.set_window_title(f"{inspect.stack()[0][3]}")
 
-    y_limits = [(0.95, 1.02), (0, 2), (0, 0.03)]  # Custom y-axis limits
+    # Adjust subplot spacing
+    plt.subplots_adjust(left=0.1, right=0.95, top=0.88, bottom=0.2, wspace=0.5)
+
+    # labels for each subplot
+    letters = [r"\textbf{(a)}", r"\textbf{(b)}", r"\textbf{(c)}"]
+    positions = [(0.1, 0.97), (0.42, 0.97), (0.737, 0.97)]
+
+    for letter, (x_pos, y_pos) in zip(letters, positions):
+        fig.text(x_pos, y_pos, letter,
+             verticalalignment="top", horizontalalignment="left")
+
+    y_limits = [(0.96, 1.02), (0.5, 2), (0.01, 0.02)]  # Custom y-axis limits
 
     # Create a plot for each metric
-    for ax, metric, title, ylim in zip(axes, plt_conf["metrics"], plt_conf["titles"], y_limits):
+    for i, (ax, metric, title, ylim) in enumerate(zip(axes, plt_conf["metrics"], plt_conf["titles"], y_limits)):
         # Use seaborn's barplot for each metric
         sns.barplot(
             data=filtered_df,
@@ -123,15 +140,15 @@ def tst_simple_bygrid_plot():
         )
         # ax.set_title(title)
         ax.set_xlabel("Grid")
-        ax.set_ylabel(metric.upper())
-        ax.legend(title="model_method", loc="upper right")
-        ax.set_ylim(ylim)  # Apply custom y-axis limits
-        
-        # Add grid lines corresponding to y-axis ticks
+        ax.set_ylabel(plt_conf["titles"][i])
+        # ax.legend(title="Method", loc="upper right")
+        ax.legend(fontsize=5, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper right")
+        ax.set_ylim(ylim)
         ax.yaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
+        # ax.set_aspect("equal")  # Forces equal scaling
 
     # Adjust layout
-    plt.tight_layout()
+    # plt.tight_layout()
 
     # saves plot to external file
     plt.savefig(TST_SIMPLE_BYGRID_PLOT)
