@@ -266,35 +266,3 @@ mdb.Job(name='Job-1', model='Model-1', description='', type=ANALYSIS,
     scratch='', resultsFormat=ODB, multiprocessingMode=DEFAULT, numCpus=1, 
     numGPUs=0)
 mdb.jobs['Job-1'].submit(consistencyChecking=OFF)
-    
-#  ----------------------------------------------------------------------------------------------------------------  #
-# --------------------------------------  Define the Design of Experiments  ---------------------------------------  #
-#  ----------------------------------------------------------------------------------------------------------------  #
-
-os.system('Abaqus job=Job-1.inp user=UMMDp_FLC.f interactive ask_delete=OFF')
-doe = new( [0.600, 0.600, 0.600, 280.00, 120.00, 0.100], [6.000, 6.000, 6.000, 700.00, 300.00, 0.300], 6, 1)
-
-for index, valor in enumerate(doe):
-    valor_r0=round(float(valor[0]),3)
-    valor_r45=round(float(valor[1]),3)
-    valor_r90=round(float(valor[2]),3)
-    valor_k=round(float(valor[3]),2)
-    valor_sigma0=round(float(valor[4]),2)
-    valor_n=round(float(valor[5]),3)
-
-    valor_F = round(float(valor_r0 /(valor_r90 * (valor_r0 + 1))),4)
-    valor_G = round(float(1 /(valor_r0 + 1)),4) 
-    valor_H = round(float(1-valor_G),4)
-    valor_L = 1.5
-    valor_M = 1.5
-    valor_N = round(float(0.5 * (((valor_r0 + valor_r90) * (2 * valor_r45 + 1)) / (valor_r90 * (valor_r0 + 1)))),4)
-    valor_e0= round(float((valor_sigma0/valor_k)**(1/valor_n)),4)
-    valor_E=210000
-    valor_v=0.3
-
-    mdb.models['Model-1'].Material(name='Material-1')
-    mdb.models['Model-1'].materials['Material-1'].Depvar(n=7)
-    mdb.models['Model-1'].materials['Material-1'].UserOutputVariables(n=15)
-    mdb.models['Model-1'].materials['Material-1'].UserMaterial(mechanicalConstants=(0, 0, valor_E, valor_v, 1, valor_F, valor_G, valor_H, valor_L, valor_M, valor_N, 2, valor_k, valor_e0, valor_n, 0))
-    mdb.models['Model-1'].HomogeneousSolidSection(name='Section-1', 
-    material='Material-1', thickness=None)
