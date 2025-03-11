@@ -1,5 +1,5 @@
-# MLCCM
-**Machine Learning** for **Calibration** of **Constitutive Models**
+# mlpcp-interp
+**Machine Learning** for **Prediction** of **Constitutive Parameters** - **Interpolation** study
 
 ## :open_book: Abstract
 
