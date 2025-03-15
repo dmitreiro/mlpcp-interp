@@ -17,6 +17,18 @@ PLOT = config.get("Paths", "resources")
 GRIDS = [20, 30, 40]
 METHODS = ["linear", "cubic", "multiquadric"]
 
+plt.rcParams.update({
+    "text.usetex": True,
+    "text.latex.preamble": r"\usepackage{amsmath}",
+    "axes.facecolor": (1,1,1),
+    "figure.facecolor": (1,1,1),
+    # "font.family": "serif",
+    "font.family": "Palatino",
+    "font.size": 8,
+    "legend.fontsize": 6,
+    "legend.edgecolor": "black"
+})
+
 def mesh_gen(n_points: int):
     """
     Function to define mesh grid for interpolation.
@@ -71,15 +83,21 @@ with open(INT_P, 'r') as file:
 x_centroids = np.array(x_centroids)
 y_centroids = np.array(y_centroids)
 
-# Original exx values
+# Original exx, eyy and exy values
 x_ori_exx = []
+x_ori_eyy = []
+x_ori_exy = []
 with open(X_TRAIN, 'r') as file:
     reader = csv.reader(file)
     header = next(reader)
     row = next(reader)
     for i in range(len(row) - (int(len(row) / 20) - 2), len(row), 3):
         x_ori_exx.append(float(row[i]))
+        x_ori_eyy.append(float(row[i+1]))
+        x_ori_exy.append(float(row[i+2]))
 x_ori_exx = np.array(x_ori_exx)
+x_ori_eyy = np.array(x_ori_eyy)
+x_ori_exy = np.array(x_ori_exy)
 
 # Determine global color scale
 global_min, global_max = x_ori_exx.min(), x_ori_exx.max()
@@ -90,52 +108,150 @@ for grid in GRIDS:
     for method in METHODS:
         interpolated_file = f"x_train_{grid}_{method}.csv"
 
-        # Interpolated exx values
+        # Interpolated exx, eyy and exy values
         x_int_exx = []
+        x_int_eyy = []
+        x_int_exy = []
         with open(os.path.join(DATA, interpolated_file), 'r') as file:
             reader = csv.reader(file)
             header = next(reader)
             row = next(reader)
             for i in range(len(row) - (int(len(row) / 20) - 2), len(row), 3):
                 x_int_exx.append(float(row[i]))
+                x_int_eyy.append(float(row[i+1]))
+                x_int_exy.append(float(row[i+2]))
         x_int_exx = np.array(x_int_exx)
+        x_int_eyy = np.array(x_int_eyy)
+        x_int_exy = np.array(x_int_exy)
 
         # Update global color scale
         global_min = min(global_min, np.nanmin(x_int_exx))
         global_max = max(global_max, np.nanmax(x_int_exx))
+        
+        rows, cols = 3, 2
 
-        # Create the plots with constrained_layout enabled
-        fig, ax = plt.subplots(1, 2, figsize=(18, 8), 
-                               gridspec_kw={'width_ratios': [1, 1], 'wspace': 0.1},
-                               constrained_layout=True)
+        fig_width_in = 13.8 / 2.54  # Convert cm to inches
+        subplot_size = fig_width_in / 2  # Keep subplots square
+        num_params = 6  # Number of subplots
+
+        fig_height_in = rows * subplot_size  # Maintain square aspect ratio
+        fig, axes = plt.subplots(rows, cols, figsize=(fig_width_in, fig_height_in))
+        # axes = axes.flatten()
+
+        # for ax in axes[:num_params]:  # Only set for used subplots
+        #     ax.set_aspect("equal", adjustable="box")
+        
+        # Adjust subplot spacing
+        plt.subplots_adjust(
+            left=0.08,   # Adjust left margin
+            right=0.985,  # Adjust right margin
+            top=0.99,    # Adjust top margin
+            bottom=0.1, # Adjust bottom margin
+            wspace=0.7,  # Increase horizontal space between plots
+            # hspace=0   # Increase vertical space between plots
+        )
+
+        # labels for each subplot
+        letters = [
+            r"\textbf{(a)}", r"\textbf{(b)}",
+            r"\textbf{(c)}", r"\textbf{(d)}",
+            r"\textbf{(e)}", r"\textbf{(f)}"
+        ]
+        positions = [
+            (0.08, 0.995), (0.653, 0.995),
+            (0.08, 0.683), (0.653, 0.683),
+            (0.08, 0.37), (0.653, 0.37)
+        ]
+
+        for letter, (x_pos, y_pos) in zip(letters, positions):
+            fig.text(x_pos, y_pos, letter,
+                    verticalalignment="top", horizontalalignment="left")
+
+        # Labels for subplots
+        titles = [r"$\varepsilon_{xx,", r"$\varepsilon_{yy,", r"$\varepsilon_{xy,"]
 
         # define element size according to grid
         match grid:
             case 20:
-                size = 900
+                size = 63
             case 30:
-                size = 450
+                size = 34
             case 40:
-                size = 250
+                size = 17
             case _:
-                size = 50
+                size = 4
+
+        # Compute a global vmin and vmax
+        global_min = min(np.nanmin(x_int_exx), np.nanmin(x_int_eyy), np.nanmin(x_int_exy),
+                        np.nanmin(x_ori_exx), np.nanmin(x_ori_eyy), np.nanmin(x_ori_exy))
+        global_max = max(np.nanmax(x_int_exx), np.nanmax(x_int_eyy), np.nanmax(x_int_exy),
+                        np.nanmax(x_ori_exx), np.nanmax(x_ori_eyy), np.nanmax(x_ori_exy))
         
-        # Plot 1: Interpolated data represented with scatter
-        scatter1 = ax[0].scatter(x_coords, y_coords, c=x_int_exx, cmap='jet', s=size, alpha=0.9, edgecolors='none', vmin=global_min, vmax=global_max)
-        ax[0].set_title(f'{grid}x{grid}, {method}')
-        ax[0].set_xlabel('X (mm)')
-        ax[0].set_ylabel('Y (mm)')
-        # cbar1 = fig.colorbar(scatter1, ax=ax[0], label=r'$\varepsilon_{xx}$')
+        global_min, global_max = -9, 9
 
-        # Plot 2: Centroids represented with scatter
-        scatter2 = ax[1].scatter(x_centroids, y_centroids, c=x_ori_exx, cmap='jet', s=450, alpha=0.9, edgecolors='none', vmin=global_min, vmax=global_max)
-        ax[1].set_title(f'Centroids')
-        ax[1].set_xlabel('X (mm)')
-        ax[1].set_ylabel('Y (mm)')
-        # cbar2 = fig.colorbar(scatter, ax=ax[1], label=r'$\varepsilon_{xx}$')
+        # Define the data pairs for each row
+        data_pairs = [
+            (x_int_exx, x_ori_exx),
+            (x_int_eyy, x_ori_eyy),
+            (x_int_exy, x_ori_exy)
+        ]
 
-        # Add a single shared colorbar for both plots
-        cbar = fig.colorbar(scatter2, ax=ax, label=r'$\varepsilon_{xx}$')
+        # Define consistent axis limits and tick intervals
+        x_min, x_max = 0, 30
+        y_min, y_max = 0, 30
+        tick_interval = 5
+        x_ticks = np.arange(x_min, x_max + tick_interval, tick_interval)
+        y_ticks = np.arange(y_min, y_max + tick_interval, tick_interval)
+
+        # Iterate over each row (exx, eyy, exy)
+        for row_idx, (x_int, x_ori) in enumerate(data_pairs):
+            # Compute vmin and vmax for this row separately
+            # vmin_row = min(np.nanmin(x_int), np.nanmin(x_ori))
+            # vmax_row = max(np.nanmax(x_int), np.nanmax(x_ori))
+
+            # Left column (interpolated)
+            scatter_int = axes[row_idx, 0].scatter(
+                x_coords, y_coords, c=x_int, cmap='jet', s=size, alpha=0.9, edgecolors='none',
+                vmin=global_min, vmax=global_max
+            )
+            # axes[row_idx, 0].set_title(f'{titles[row_idx]} - Interpolated')
+            axes[row_idx, 0].set_xlabel('x (mm)')
+            axes[row_idx, 0].set_ylabel('y (mm)')
+            axes[row_idx, 0].set_aspect("equal", adjustable="box")
+
+            # equal scales and ticks on both axes
+            axes[row_idx, 0].set_xlim(x_min, x_max)
+            axes[row_idx, 0].set_ylim(y_min, y_max)
+            axes[row_idx, 0].set_xticks(x_ticks)
+            axes[row_idx, 0].set_yticks(y_ticks)
+            axes[row_idx, 0].set_aspect("equal")  # force equal scaling
+
+            # Right column (original)
+            scatter_ori = axes[row_idx, 1].scatter(
+                x_centroids, y_centroids, c=x_ori, cmap='jet', s=34, alpha=0.9, edgecolors='none',
+                vmin=global_min, vmax=global_max
+            )
+            # axes[row_idx, 1].set_title(f'{titles[row_idx]} - Original')
+            axes[row_idx, 1].set_xlabel('x (mm)')
+            axes[row_idx, 1].set_ylabel('y (mm)')
+            axes[row_idx, 1].set_aspect("equal", adjustable="box")
+
+            # equal scales and ticks on both axes
+            axes[row_idx, 1].set_xlim(x_min, x_max)
+            axes[row_idx, 1].set_ylim(y_min, y_max)
+            axes[row_idx, 1].set_xticks(x_ticks)
+            axes[row_idx, 1].set_yticks(y_ticks)
+            axes[row_idx, 1].set_aspect("equal")  # force equal scaling
+
+            # Add a colorbar for this row
+            # cbar = fig.colorbar(scatter_ori, ax=axes[row_idx, :].ravel().tolist(), label=titles[row_idx])
+
+        # Add a single horizontal colorbar at the bottom
+        cax = fig.add_axes([0.2, 0.03, 0.6, 0.02])  # [left, bottom, width, height]
+        cbar = fig.colorbar(scatter_ori, cax=cax, orientation='horizontal')
+        # cbar.set_label(r'$\varepsilon$')
+        ticks = np.linspace(global_min, global_max, num=7)
+        cbar.set_ticks(ticks)
 
         # saves and closes plot
         plt.savefig(os.path.join(PLOT, f'interp_{grid}_{method}.pdf'))
