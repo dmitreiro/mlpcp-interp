@@ -3,8 +3,7 @@ import numpy as np
 import configparser
 import os
 import matplotlib.pyplot as plt
-
-from sklearn.metrics import r2_score, mean_absolute_error
+from sklearn.metrics import r2_score
 
 # Reading configuration file
 config = configparser.ConfigParser()
@@ -43,19 +42,24 @@ def generate_comparison_plots(grid, method, test_method):
     """
     # File paths for the predicted and original y data
     pred_params_path = os.path.join(DATA, f"y_pred_{grid}_{method}_{test_method}.csv")
+    pred_params_ori_path = os.path.join(DATA, f"y_pred_ori.csv")
     y_test_path = Y_TEST  # Original test data
 
     try:
-        # Load both files with headers
+        # Load files with headers
         print(f"Loading predicted data from {pred_params_path}")
         y_pred = pd.read_csv(pred_params_path, header=0)  # Load with header
+
+        print(f"Loading predicted data from {pred_params_ori_path}")
+        y_pred_ori = pd.read_csv(pred_params_ori_path, header=0)  # Load with header
         
         print(f"Loading original data from {y_test_path}")
         y_test = pd.read_csv(y_test_path, header=0)  # Load with header
         
         # Replace the header of y_pred with the correct header from y_test
         y_pred.columns = y_test.columns
-        print("Replaced y_pred header with y_test header.")
+        y_pred_ori.columns = y_test.columns
+        print("Replaced y_pred and y_pred_ori headers with y_test header.")
     except FileNotFoundError as e:
         print(f"File not found: {e}")
         return
@@ -64,22 +68,25 @@ def generate_comparison_plots(grid, method, test_method):
         return
 
     # Ensure dimensions match
-    if y_pred.shape != y_test.shape:
-        print(f"Dimension mismatch: y_pred shape {y_pred.shape}, y_test shape {y_test.shape}")
+    if y_pred.shape != y_test.shape or y_pred_ori.shape != y_test.shape:
+        print(f"Dimension mismatch: y_pred shape {y_pred.shape}, y_pred_ori shape {y_pred_ori.shape}, y_test shape {y_test.shape}")
         return
 
-    # Skip 4th and 5th parameters
-    columns_to_plot = [col for i, col in enumerate(y_test.columns) if i not in (3, 4)]
+    # Skip 3rd, 4th and 5th parameters
+    columns_to_plot = [col for i, col in enumerate(y_test.columns) if i not in (2, 3, 4)]
     num_params = len(columns_to_plot)
+    first_three = columns_to_plot[:3]
+    last_three = columns_to_plot[-3:]
+    params_to_plot = list(first_three) + list(last_three)
 
     # Determine subplot grid layout
     # rows = (num_params // 3) + (1 if num_params % 3 else 0)
     # fig, axes = plt.subplots(rows, 3, figsize=(18, 6 * rows))
     # axes = axes.flatten()  # Flatten axes array for easy indexing
 
-    fig_width_in = 13.7 / 2.54  # Convert cm to inches
+    fig_width_in = 13.8 / 2.54  # Convert cm to inches
     subplot_size = fig_width_in / 3  # Keep subplots square
-    num_params = 7  # Number of subplots
+    num_params = 12  # Number of subplots
 
     rows = (num_params // 3) + (1 if num_params % 3 else 0)
     fig_height_in = rows * subplot_size  # Maintain square aspect ratio
@@ -94,93 +101,139 @@ def generate_comparison_plots(grid, method, test_method):
 
     # Adjust subplot spacing
     plt.subplots_adjust(
-        left=0.05,   # Adjust left margin
-        right=1.02,  # Adjust right margin
-        top=0.95,    # Adjust top margin
-        bottom=0.08, # Adjust bottom margin
-        wspace=0.1,  # Increase horizontal space between plots
-        hspace=0.7   # Increase vertical space between plots
+        left=0.09,   # Adjust left margin
+        right=0.98,  # Adjust right margin
+        top=0.99,    # Adjust top margin
+        bottom=0.052, # Adjust bottom margin
+        wspace=0.6,  # Increase horizontal space between plots
+        hspace=0.5   # Increase vertical space between plots
     )
 
-    # labels for each subplot
-    letters = [
-        r"\textbf{(a)}", r"\textbf{(b)}", r"\textbf{(c)}",
-        r"\textbf{(d)}", r"\textbf{(e)}", r"\textbf{(f)}",
-        r"\textbf{(g)}"
-    ]
-    positions = [
-        (0.10, 0.98), (0.435, 0.98), (0.768, 0.98),
-        (0.10, 0.64), (0.435, 0.64), (0.768, 0.64),
-        (0.10, 0.31)
-    ]
+    # # Adjust subplot spacing
+    # plt.subplots_adjust(
+    #     left=0.04,   # Adjust left margin
+    #     right=1.025,  # Adjust right margin
+    #     top=0.97,    # Adjust top margin
+    #     bottom=0.055, # Adjust bottom margin
+    #     # wspace=0.1,  # Increase horizontal space between plots
+    #     hspace=0.7   # Increase vertical space between plots
+    # )
 
-    for letter, (x_pos, y_pos) in zip(letters, positions):
-        fig.text(x_pos, y_pos, letter,
-                verticalalignment="top", horizontalalignment="left")
+    # # labels for each subplot
+    # letters = [
+    #     r"\textbf{(a)}", r"\textbf{(b)}", r"\textbf{(c)}",
+    #     r"\textbf{(d)}", r"\textbf{(e)}", r"\textbf{(f)}",
+    #     r"\textbf{(g)}", r"\textbf{(h)}", r"\textbf{(i)}",
+    #     r"\textbf{(j)}", r"\textbf{(k)}", r"\textbf{(l)}"
+    # ]
+    # positions = [
+    #     (0.084, 0.998), (0.433, 0.998), (0.78, 0.998),
+    #     (0.084, 0.744), (0.433, 0.744), (0.78, 0.744),
+    #     (0.084, 0.49), (0.433, 0.49), (0.78, 0.49),
+    #     (0.084, 0.237), (0.433, 0.237), (0.78, 0.237)
+    # ]
+
+    # for letter, (x_pos, y_pos) in zip(letters, positions):
+    #     fig.text(x_pos, y_pos, letter,
+    #             verticalalignment="top", horizontalalignment="left")
         
     config = {
-        "y_labels": {"F": r"$F$",
-                     "G": r"$G$",
-                     "H": r"$H$",
-                     "N": r"$N$",
-                     "sigma0": r"$\sigma_{0}$",
-                     "k": r"$K$",
-                     "n": r"$n$"},
+        "y_labels": {
+            "F": r"$F$",
+            "G": r"$G$",
+            "N": r"$N$",
+            "sigma0": r"$\sigma_{0}$",
+            "k": r"$K$",
+            "n": r"$n$"
+        },
+        "y_limits": {
+            "F": (0, 1.3),
+            "G": (0.1, 0.7),
+            "N": (0, 9),
+            "sigma0": (120, 300),
+            "k": (280, 700),
+            "n": (0.14, 0.3)
+        }
     }
 
-    try:
-        # Plot each parameter in its designated subplot
-        for idx, column in enumerate(columns_to_plot):
-            ax = axes[idx]
-            ax.scatter(
-                y_test[column], y_pred[column],
-                s=0.3, color='black'#, label=f"Parameter: {column}"
-            )
-            ax.plot(
-                [y_test[column].min(), y_test[column].max()],
-                [y_test[column].min(), y_test[column].max()],
-                color='red',
-                linewidth=0.8
-                # label='Ideal Line'
-            )
-
-            # Calculate R^2 and MAE
-            r2 = r2_score(y_test[column], y_pred[column])
-            mae = mean_absolute_error(y_test[column], y_pred[column])
+    try:        
+        for idx, column in enumerate(params_to_plot):
+            if idx >= 3:
+                idx = idx + 3
+            # First and third row: y_pred
+            ax_pred = axes[idx]
+            ax_pred.scatter(y_test[column], y_pred[column], s=0.3, color='black')
+            # ax_pred.plot([y_test[column].min(), y_test[column].max()],
+            #             [y_test[column].min(), y_test[column].max()], color='red', linewidth=0.8)
+            ax_pred.plot([
+                config["y_limits"].get(column, (y_test[column].min(), y_test[column].max()))[0],
+                config["y_limits"].get(column, (y_test[column].min(), y_test[column].max()))[1]
+            ], [
+                config["y_limits"].get(column, (y_test[column].min(), y_test[column].max()))[0],
+                config["y_limits"].get(column, (y_test[column].min(), y_test[column].max()))[1]
+            ], color='red', linewidth=0.8)
+            ax_pred.set_xlabel(f"{column} test")
+            ax_pred.set_ylabel(f"{column} predicted")
 
             # Add R^2 and MAE as text in the top left corner
-            ax.text(
+            r2 = r2_score(y_test[column], y_pred[column])
+            ax_pred.text(
                 0.05, 0.95,
                 # f"$R^2$: {r2:.3f}\nMAE: {mae:.3f}",
                 f"$R^2$: {r2:.3f}",
-                transform=ax.transAxes,
+                transform=ax_pred.transAxes,
                 fontsize=6,
                 verticalalignment='top',
                 # bbox=dict(boxstyle="round,pad=0.3", edgecolor='black', facecolor='white')
             )
 
-            # ax.set_xlabel(f"{column} simulated")
-            # ax.set_ylabel(f"{column} predicted")
-            ax.set_xlabel(f"{config['y_labels'].get(column, column)} test")
-            ax.set_ylabel(f"{config['y_labels'].get(column, column)} predicted")
-            #ax.legend(loc='upper left', fontsize='small')
-            #ax.set_title(f"{column}")
-            ax.set_aspect("equal")  # force equal scaling
-            ax.autoscale()
-            # x_min, x_max = ax.get_xlim()
-            # y_min, y_max = ax.get_ylim()
-            # num_ticks = 4
-            # x_ticks = np.linspace(x_min, x_max, num_ticks)  # X-axis ticks
-            # y_ticks = np.linspace(y_min, y_max, num_ticks)  # Y-axis ticks
-            # ax.set_xticks(x_ticks)
-            # ax.set_yticks(y_ticks)
-            ax.locator_params(axis="x", nbins=4)
-            ax.locator_params(axis="y", nbins=4)
+            ax_pred.set_aspect("equal")
+            # ax_pred.locator_params(axis="x", nbins=4)
+            # ax_pred.locator_params(axis="y", nbins=4)
+            ax_pred.set_xlabel(f"{config['y_labels'].get(column, column)} test")
+            ax_pred.set_ylabel(f"{config['y_labels'].get(column, column)} predicted")
+            ax_pred.set_xlim(config["y_limits"].get(column, (y_test[column].min(), y_test[column].max())))
+            ax_pred.set_xticks(np.linspace(*ax_pred.get_xlim(), 3))
+            ax_pred.set_ylim(config["y_limits"].get(column, (y_test[column].min(), y_test[column].max())))
+            ax_pred.set_yticks(np.linspace(*ax_pred.get_ylim(), 3))
             
+            # Second and fourth row: y_pred_ori
+            ax_pred_ori = axes[idx + 3]
+            ax_pred_ori.scatter(y_test[column], y_pred_ori[column], s=0.3, color='blue')
+            # ax_pred_ori.plot([y_test[column].min(), y_test[column].max()],
+            #                 [y_test[column].min(), y_test[column].max()], color='red', linewidth=0.8)
+            ax_pred_ori.plot([
+                config["y_limits"].get(column, (y_test[column].min(), y_test[column].max()))[0],
+                config["y_limits"].get(column, (y_test[column].min(), y_test[column].max()))[1]
+            ], [
+                config["y_limits"].get(column, (y_test[column].min(), y_test[column].max()))[0],
+                config["y_limits"].get(column, (y_test[column].min(), y_test[column].max()))[1]
+            ], color='red', linewidth=0.8)
+            ax_pred_ori.set_xlabel(f"{column} test")
+            ax_pred_ori.set_ylabel(f"{column} predicted ori")
 
-        # Hide any unused subplots
-        for idx in range(num_params, len(axes)):
-            fig.delaxes(axes[idx])
+            # Add R^2 and MAE as text in the top left corner
+            r2_ori = r2_score(y_test[column], y_pred_ori[column])
+            ax_pred_ori.text(
+                0.05, 0.95,
+                # f"$R^2$: {r2:.3f}\nMAE: {mae:.3f}",
+                f"$R^2$: {r2_ori:.3f}",
+                transform=ax_pred_ori.transAxes,
+                fontsize=6,
+                verticalalignment='top',
+                # bbox=dict(boxstyle="round,pad=0.3", edgecolor='black', facecolor='white')
+            )
+
+            ax_pred_ori.set_aspect("equal")
+            # ax_pred_ori.locator_params(axis="x", nbins=4)
+            # ax_pred_ori.locator_params(axis="y", nbins=4)
+            ax_pred_ori.set_xlabel(f"{config['y_labels'].get(column, column)} test")
+            ax_pred_ori.set_ylabel(f"{config['y_labels'].get(column, column)} predicted")
+            ax_pred_ori.set_xlim(config["y_limits"].get(column, (y_test[column].min(), y_test[column].max())))
+            ax_pred_ori.set_xticks(np.linspace(*ax_pred_ori.get_xlim(), 3))
+            ax_pred_ori.set_ylim(config["y_limits"].get(column, (y_test[column].min(), y_test[column].max())))
+            ax_pred_ori.set_yticks(np.linspace(*ax_pred_ori.get_ylim(), 3))
+        
 
         # Adjust layout and save the plot
         # plt.tight_layout()
