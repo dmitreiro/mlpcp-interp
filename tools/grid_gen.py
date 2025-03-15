@@ -96,7 +96,7 @@ print(
 )
 
 # Define figure size
-fig_width_in = 13.7 / 2.54  # Convert cm to inches
+fig_width_in = 13.8 / 2.54  # Convert cm to inches
 subplot_size = fig_width_in / 2  # Each subplot should be square
 fig_height_in = subplot_size * 2  # Ensuring square aspect ratio
 
@@ -114,11 +114,22 @@ fig.delaxes(ax_empty)
 plot_axes = [ax1, ax2, ax3]
 
 # Adjust subplot spacing
-plt.subplots_adjust(left=0.02, right=1.02, top=0.92, hspace=0.5, wspace=-0.1)
+plt.subplots_adjust(
+    left=0.04,
+    right=1.02,
+    top=0.96,
+    bottom=0.08,
+    hspace=0.35,
+    #wspace=-0.1
+)
 
 # labels for each subplot
-letters = [r"\textbf{(a)}", r"\textbf{(b)}", r"\textbf{(c)}"]
-positions = [(0.12, 0.97), (0.59, 0.97), (0.12, 0.48)]
+letters = [r"\textbf{(a)}", r"\textbf{(b)}",
+           r"\textbf{(c)}"
+           ]
+positions = [(0.08, 0.995), (0.615, 0.995),
+             (0.08, 0.49)
+             ]
 
 for letter, (x_pos, y_pos) in zip(letters, positions):
     fig.text(x_pos, y_pos, letter,
@@ -136,9 +147,9 @@ for ax, letter, (n_points, (x_coords, y_coords)) in zip(plot_axes, letters, zip(
     ax.scatter(x_coords, y_coords, color="blue", s=0.3, label="Grid") # grid points
     ax.scatter(centroid_x, centroid_y, color="red", s=0.3, label="Centroids") # centroids
     # ax.set_title(f"Grid: {n_points}x{n_points}")
-    ax.set_xlabel("X (mm)")
-    ax.set_ylabel("Y (mm)")
-    ax.legend()
+    ax.set_xlabel("x (mm)")
+    ax.set_ylabel("y (mm)")
+    ax.legend(fontsize=6, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper right")
     #ax.grid(True)
     
     # equal scales and ticks on both axes
