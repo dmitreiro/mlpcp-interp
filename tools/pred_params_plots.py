@@ -182,7 +182,7 @@ def generate_comparison_plots(grid, method, test_method):
                 # f"$R^2$: {r2:.3f}\nMAE: {mae:.3f}",
                 f"$R^2$: {r2:.3f}",
                 transform=ax_pred.transAxes,
-                fontsize=6,
+                fontsize=7,
                 verticalalignment='top',
                 # bbox=dict(boxstyle="round,pad=0.3", edgecolor='black', facecolor='white')
             )
@@ -219,7 +219,7 @@ def generate_comparison_plots(grid, method, test_method):
                 # f"$R^2$: {r2:.3f}\nMAE: {mae:.3f}",
                 f"$R^2$: {r2_ori:.3f}",
                 transform=ax_pred_ori.transAxes,
-                fontsize=6,
+                fontsize=7,
                 verticalalignment='top',
                 # bbox=dict(boxstyle="round,pad=0.3", edgecolor='black', facecolor='white')
             )

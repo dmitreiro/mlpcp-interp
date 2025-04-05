@@ -101,7 +101,7 @@ def tst_simple_bygrid_plot():
         ax.set_xlabel("Grid")
         ax.set_ylabel(plt_conf["titles"][i])
         # ax.legend(title="Method", loc="upper right")
-        ax.legend(fontsize=5, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper right")
+        ax.legend(fontsize=6, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper right")
         ax.set_ylim(ylim)
         ax.yaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
         # ax.set_aspect("equal")  # Forces equal scaling
@@ -200,7 +200,7 @@ def tst_cross_bygrid_r2_plot():
         )
         axes[i].set_xlabel("Grid")
         axes[i].set_ylabel(plt_conf["titles"][0])
-        axes[i].legend(fontsize=5, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper right")
+        axes[i].legend(fontsize=6, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper right")
         axes[i].set_ylim(y_limits[0])
         axes[i].yaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
 
@@ -257,7 +257,7 @@ def rev_interp_bygrid_plot():
         ax.set_xlabel("Grid")
         ax.set_ylabel(plt_conf["titles"][i])
         # ax.legend(title="Method", loc="upper right")
-        ax.legend(fontsize=5, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper right")
+        ax.legend(fontsize=6, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper right")
         ax.set_ylim(ylim)
         ax.yaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
         # ax.set_aspect("equal")  # Forces equal scaling
@@ -330,7 +330,7 @@ def time_grid_plot():
     # axes[0].set_title("Grid vs Time")
     axes[0].set_xlabel("Grid")
     axes[0].set_ylabel("Interpolation time (s)")
-    axes[0].legend(fontsize=5, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper left")
+    axes[0].legend(fontsize=6, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper left")
     axes[0].grid(axis="y", linestyle="--", linewidth=0.5, alpha=0.7)
     axes[0].set_ylim(0, 6000)
 
@@ -346,7 +346,7 @@ def time_grid_plot():
     # axes[1].set_title("Grid vs Time")
     axes[1].set_xlabel("Grid")
     axes[1].set_ylabel("Training time (s)")
-    axes[1].legend(fontsize=5, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper left")
+    axes[1].legend(fontsize=6, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper left")
     axes[1].grid(axis="y", linestyle="--", linewidth=0.5, alpha=0.7)
     axes[1].set_ylim(0, 17500)
 

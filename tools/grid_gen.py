@@ -149,7 +149,7 @@ for ax, letter, (n_points, (x_coords, y_coords)) in zip(plot_axes, letters, zip(
     # ax.set_title(f"Grid: {n_points}x{n_points}")
     ax.set_xlabel("x (mm)")
     ax.set_ylabel("y (mm)")
-    ax.legend(fontsize=6, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper right")
+    ax.legend(fontsize=7, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper right")
     #ax.grid(True)
     
     # equal scales and ticks on both axes
