@@ -14,20 +14,16 @@ TST_METRICS = config.get("Files", "test_metrics")
 TRAIN_METRICS = config.get("Files", "train_metrics")
 REV_INTERP_METRICS = config.get("Files", "rev_interp_metrics")
 INTERP_METRICS = config.get("Files", "interp_metrics")
+DIC_PREDICT_METRICS = config.get("Files", "dic_predict_metrics")
 PLOT = config.get("Paths", "resources")
 DATA = config.get("Paths", "data_cleaned")
 
 # path to save plots
-TST_SIMPLE_BYMETHOD_PLOT = os.path.join(PLOT, "tst_simple_bymethod_metrics.pdf")
 TST_SIMPLE_BYGRID_PLOT = os.path.join(PLOT, "tst_simple_bygrid_metrics.pdf")
-TST_CROSS_BYMETHOD_PLOT = os.path.join(PLOT, "tst_cross_bymethod_metrics.pdf")
+DIC_PREDICT_BYGRID_PLOT = os.path.join(PLOT, "dic_predict_bygrid_metrics.pdf")
 TST_CROSS_BYGRID_PLOT = os.path.join(PLOT, "tst_cross_bygrid_metrics.pdf")
 TST_CROSS_BYGRID_R2_PLOT = os.path.join(PLOT, "tst_cross_bygrid_r2_metrics.pdf")
-REV_INTERP_BYMETHOD_PLOT = os.path.join(PLOT, "rev_interp_bymethod_metrics.pdf")
 REV_INTERP_BYGRID_PLOT = os.path.join(PLOT, "rev_interp_bygrid_metrics.pdf")
-INTERP_TIME_METHOD_PLOT = os.path.join(PLOT, "interp_time_method_metrics.pdf")
-INTERP_TIME_GRID_PLOT = os.path.join(PLOT, "interp_time_grid_metrics.pdf")
-TRAIN_TIME_GRID_PLOT = os.path.join(PLOT, "train_time_grid_metrics.pdf")
 TIME_GRID_PLOT = os.path.join(PLOT, "time_grid_metrics.pdf")
 
 plt.rcParams.update({
@@ -111,6 +107,69 @@ def tst_simple_bygrid_plot():
 
     # saves plot to external file
     plt.savefig(TST_SIMPLE_BYGRID_PLOT)
+
+    # shows plot
+    # plt.show()
+
+def dic_predict_bygrid_plot():
+    # Load the data from the CSV file
+    df = pd.read_csv(DIC_PREDICT_METRICS)
+
+    # load config
+    plt_conf = plot_config()
+
+    # filters data
+    filtered_df = df[df['model_method'] == df['test_method']]
+    # filtered_df = filtered_df[df['grid'] == 20]
+
+    # Define figure size
+    fig_width_in = 13.8 / 2.54  # Convert cm to inches
+    subplot_size = fig_width_in / 3  # Each subplot should be square
+    fig_height_in = fig_width_in / 3  # Keep aspect ratio square
+
+    # Set up the plotting grid
+    fig, axes = plt.subplots(1, 3, figsize=(fig_width_in, fig_height_in), sharey=False)
+    # fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharey=False)
+    # fig.canvas.manager.set_window_title(f"{inspect.stack()[0][3]}")
+
+    # Adjust subplot spacing
+    plt.subplots_adjust(left=0.09, right=0.99, top=0.90, bottom=0.2, wspace=0.5)
+
+    # labels for each subplot
+    letters = [r"\textbf{(a)}", r"\textbf{(b)}", r"\textbf{(c)}"]
+    positions = [(0.09, 0.99), (0.427, 0.99), (0.764, 0.99)]
+
+    for letter, (x_pos, y_pos) in zip(letters, positions):
+        fig.text(x_pos, y_pos, letter,
+             verticalalignment="top", horizontalalignment="left")
+
+    y_limits = [(0.96, 1.02), (0.5, 2), (0.01, 0.02)]  # Custom y-axis limits
+
+    # Create a plot for each metric
+    for i, (ax, metric, title, ylim) in enumerate(zip(axes, plt_conf["metrics"], plt_conf["titles"], y_limits)):
+        # Use seaborn's barplot for each metric
+        sns.barplot(
+            data=filtered_df,
+            x="grid",
+            y=metric,
+            hue="model_method",
+            ax=ax,
+            palette=plt_conf["palette"]
+        )
+        # ax.set_title(title)
+        ax.set_xlabel("Grid")
+        ax.set_ylabel(plt_conf["titles"][i])
+        # ax.legend(title="Method", loc="upper right")
+        ax.legend(fontsize=6, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper right")
+        ax.set_ylim(ylim)
+        ax.yaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
+        # ax.set_aspect("equal")  # Forces equal scaling
+
+    # Adjust layout
+    # plt.tight_layout()
+
+    # saves plot to external file
+    plt.savefig(DIC_PREDICT_BYGRID_PLOT)
 
     # shows plot
     # plt.show()
@@ -362,6 +421,7 @@ def time_grid_plot():
 
 if __name__ == "__main__":
     tst_simple_bygrid_plot()
+    dic_predict_bygrid_plot()
     # tst_cross_bygrid_plot()
     tst_cross_bygrid_r2_plot()
     rev_interp_bygrid_plot()
