@@ -227,7 +227,7 @@ session.viewports['Viewport: 1'].partDisplay.setValues(sectionAssignments=OFF,
 session.viewports['Viewport: 1'].partDisplay.meshOptions.setValues(
     meshTechnique=ON)
 p = mdb.models['Model-1'].parts['Part-1']
-p.seedPart(size=1.0, deviationFactor=0.1, minSizeFactor=0.1)
+p.seedPart(size=0.34, deviationFactor=0.1, minSizeFactor=0.1)
 p = mdb.models['Model-1'].parts['Part-1']
 c = p.cells
 pickedRegions = c.getSequenceFromMask(mask=('[#1 ]', ), )
@@ -272,166 +272,195 @@ mdb.jobs['Job-1'].submit(consistencyChecking=OFF)
 #  ----------------------------------------------------------------------------------------------------------------  #
 
 os.system('Abaqus job=Job-1.inp user=UMMDp_FLC.f interactive ask_delete=OFF')
-doe = new( [0.600, 0.600, 0.600, 280.00, 120.00, 0.100], [6.000, 6.000, 6.000, 700.00, 300.00, 0.300], 6, 6000)
+# doe = new( [0.600, 0.600, 0.600, 280.00, 120.00, 0.100], [6.000, 6.000, 6.000, 700.00, 300.00, 0.300], 6, 6000)
 
-for index, valor in enumerate(doe):
-    valor_r0=round(float(valor[0]),3)
-    valor_r45=round(float(valor[1]),3)
-    valor_r90=round(float(valor[2]),3)
-    valor_k=round(float(valor[3]),2)
-    valor_sigma0=round(float(valor[4]),2)
-    valor_n=round(float(valor[5]),3)
+# for index, valor in enumerate(doe):
+# valor_r0=round(float(valor[0]),3)
+# valor_r45=round(float(valor[1]),3)
+# valor_r90=round(float(valor[2]),3)
+valor_k=594.72
+valor_sigma0=148.6
+valor_n=0.229
 
-    valor_F = round(float(valor_r0 /(valor_r90 * (valor_r0 + 1))),4)
-    valor_G = round(float(1 /(valor_r0 + 1)),4) 
-    valor_H = round(float(1-valor_G),4)
-    valor_L = 1.5
-    valor_M = 1.5
-    valor_N = round(float(0.5 * (((valor_r0 + valor_r90) * (2 * valor_r45 + 1)) / (valor_r90 * (valor_r0 + 1)))),4)
-    valor_e0= round(float((valor_sigma0/valor_k)**(1/valor_n)),4)
-    valor_E=210000
-    valor_v=0.3
+# F,G,H,L,M,N,sigma0,k,n
+# 0.1146,0.3452,0.6548,1.5,1.5,1.0589,148.6,594.72,0.229
 
-    mdb.models['Model-1'].Material(name='Material-1')
-    mdb.models['Model-1'].materials['Material-1'].Depvar(n=7)
-    mdb.models['Model-1'].materials['Material-1'].UserOutputVariables(n=15)
-    mdb.models['Model-1'].materials['Material-1'].UserMaterial(mechanicalConstants=(0, 0, valor_E, valor_v, 1, valor_F, valor_G, valor_H, valor_L, valor_M, valor_N, 2, valor_k, valor_e0, valor_n, 0))
-    mdb.models['Model-1'].HomogeneousSolidSection(name='Section-1', 
-    material='Material-1', thickness=None)
-    
+valor_F = 0.1146
+valor_G = 0.3452
+valor_H = 0.6548
+valor_L = 1.5
+valor_M = 1.5
+valor_N = 1.0589
+valor_e0= round(float((valor_sigma0/valor_k)**(1/valor_n)),4)
+valor_E=210000
+valor_v=0.3
+
+mdb.models['Model-1'].Material(name='Material-1')
+mdb.models['Model-1'].materials['Material-1'].Depvar(n=7)
+mdb.models['Model-1'].materials['Material-1'].UserOutputVariables(n=15)
+mdb.models['Model-1'].materials['Material-1'].UserMaterial(mechanicalConstants=(0, 0, valor_E, valor_v, 1, valor_F, valor_G, valor_H, valor_L, valor_M, valor_N, 2, valor_k, valor_e0, valor_n, 0))
+mdb.models['Model-1'].HomogeneousSolidSection(name='Section-1', 
+material='Material-1', thickness=None)
+
 #  ----------------------------------------------------------------------------------------------------------------  #
 # ------------------------------------------------  Job 2  ---------------------------------------------------------  #
 #  ----------------------------------------------------------------------------------------------------------------  #
 
-    mdb.Job(name='Job-1', model='Model-1', description='', type=ANALYSIS, 
-        atTime=None, waitMinutes=0, waitHours=0, queue=None, memory=90, 
-        memoryUnits=PERCENTAGE, getMemoryFromAnalysis=True, 
-        explicitPrecision=SINGLE, nodalOutputPrecision=SINGLE, echoPrint=OFF, 
-        modelPrint=OFF, contactPrint=OFF, historyPrint=OFF, userSubroutine='', 
-        scratch='', resultsFormat=ODB, multiprocessingMode=DEFAULT, numCpus=1, 
-        numGPUs=0)
-    mdb.jobs['Job-1'].submit(consistencyChecking=OFF)                                                                                                                                                             #Submit the Job
-    mdb.jobs['Job-1'].waitForCompletion()
-    
-    os.system('Abaqus job=Job-1.inp user=UMMDp_FLC.f interactive ask_delete=OFF')
-    
-    odb_Path = 'Job-1.odb'
-    cruci_ODB = session.openOdb(name=odb_Path)                                                                                                                                                                            #Open ODB File
+mdb.Job(name='Job-1', model='Model-1', description='', type=ANALYSIS, 
+    atTime=None, waitMinutes=0, waitHours=0, queue=None, memory=90, 
+    memoryUnits=PERCENTAGE, getMemoryFromAnalysis=True, 
+    explicitPrecision=SINGLE, nodalOutputPrecision=SINGLE, echoPrint=OFF, 
+    modelPrint=OFF, contactPrint=OFF, historyPrint=OFF, userSubroutine='', 
+    scratch='', resultsFormat=ODB, multiprocessingMode=DEFAULT, numCpus=1, 
+    numGPUs=0)
+mdb.jobs['Job-1'].submit(consistencyChecking=OFF)                                                                                                                                                             #Submit the Job
+mdb.jobs['Job-1'].waitForCompletion()
 
-    frames = len(cruci_ODB.steps['Step-1'].frames)                                                                                                                                                                #Number of Frames
-    
-    nodes = len(cruci_ODB.steps['Step-1'].frames[0].fieldOutputs['S'].values[0].instance.nodes)                                                                #Number of Nodes
+os.system('Abaqus job=Job-1.inp user=UMMDp_FLC.f interactive ask_delete=OFF')
 
-    elements = len(cruci_ODB.steps['Step-1'].frames[0].fieldOutputs['S'].values[0].instance.elements)                                                  #Number of Elements
-   
-    no_of_field_output_ut_values = len(cruci_ODB.steps['Step-1'].frames[0].fieldOutputs['S'].values)                                                  #Field Output Values
-    
+node_set_x = mdb.models['Model-1'].rootAssembly.sets['Set-1']
+node_set_y = mdb.models['Model-1'].rootAssembly.sets['Set-2']
+nodes_x = [node.label for node in node_set_x.nodes]
+nodes_y = [node.label for node in node_set_y.nodes]
+
+odb_Path = 'Job-1.odb'
+cruci_ODB = session.openOdb(name=odb_Path)                                                                                                                                                                            #Open ODB File
+
+frames = len(cruci_ODB.steps['Step-1'].frames)                                                                                                                                                                #Number of Frames
+
+nodes = len(cruci_ODB.steps['Step-1'].frames[0].fieldOutputs['S'].values[0].instance.nodes)                                                                #Number of Nodes
+
+elements = len(cruci_ODB.steps['Step-1'].frames[0].fieldOutputs['S'].values[0].instance.elements)                                                  #Number of Elements
+
+no_of_field_output_ut_values = len(cruci_ODB.steps['Step-1'].frames[0].fieldOutputs['S'].values)                                                  #Field Output Values
+
 
 #  ----------------------------------------------------------------------------------------------------------------  #
 # ---------------------------------------  Write Values for Data Base  --------------------------------------------  #
 #  ----------------------------------------------------------------------------------------------------------------  #
 
-    # Define CSV file path
-    csv_filename = r'{}\{}_{}_{}_{}_{}_{}_{}_{}_{}.csv'.format(MYCSVDIR, valor_F, valor_G, valor_H, valor_L, valor_M, valor_N, valor_sigma0, valor_k, valor_n)
-    csv_nodes = r'{}\{}_{}_{}_{}_{}_{}_{}_{}_{}_nodes.csv'.format(MYCSVDIR, valor_F, valor_G, valor_H, valor_L, valor_M, valor_N, valor_sigma0, valor_k, valor_n)
+# Start the timer
+start_time = time.time()
 
-    # Open the CSV file in binary mode ('wb')
-    with open(csv_filename, 'wb') as file, open(csv_nodes, 'wb') as f_nodes:
-        writer = csv.writer(file)
-        nodes_writer = csv.writer(f_nodes)
+# Define CSV file path
+csv_filename = r'{}\{}_{}_{}_{}_{}_{}_{}_{}_{}.csv'.format(MYCSVDIR, valor_F, valor_G, valor_H, valor_L, valor_M, valor_N, valor_sigma0, valor_k, valor_n)
+csv_nodes = r'{}\{}_{}_{}_{}_{}_{}_{}_{}_{}_nodes.csv'.format(MYCSVDIR, valor_F, valor_G, valor_H, valor_L, valor_M, valor_N, valor_sigma0, valor_k, valor_n)
+
+# Open the CSV file in binary mode ('wb')
+print("Starting data ...")
+with open(csv_filename, 'wb') as file: #open(csv_nodes, 'wb') as f_nodes:
+    writer = csv.writer(file)
+    # nodes_writer = csv.writer(f_nodes)
+
+    # Create a list to store all rows of data
+    all_data = []
+    nodes_all_data = []
+
+    # Loop for Frames
+    for i in range(1, frames):
+        print("Frame " + str(i) + " ...")
+        data = []
+        nodes_data = []
+
+        somax = 0  
+        somay = 0
+        # node_set_x = mdb.models['Model-1'].rootAssembly.sets['Set-1']
+        # node_set_y = mdb.models['Model-1'].rootAssembly.sets['Set-2']
+        # nodes_x = [node.label for node in node_set_x.nodes]
+        # nodes_y = [node.label for node in node_set_y.nodes]
+        # nodes_x = [2, 5, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 635, 638, 673, 674, 675, 676, 677, 678, 679, 680, 681, 682, 683, 684, 685]  # Nodes in Set-1 X are n-1 inside nodes_x[} 
+        # nodes_y = [9, 11, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 642, 644, 755, 756, 757, 758, 759, 760, 761, 762, 763, 764, 765, 766, 767]  # Nodes in Set-2 Y are n-1 inside nodes_y[} 
     
-        # Create a list to store all rows of data
-        all_data = []
-        nodes_all_data = []
-    
-        # Loop for Frames
-        for i in range(1, frames):
-            data = []
-            nodes_data = []
-
-            somax = 0  
-            somay = 0
-            nodes_x = [2, 5, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 635, 638, 673, 674, 675, 676, 677, 678, 679, 680, 681, 682, 683, 684, 685]  # Nodes in Set-1 X are n-1 inside nodes_x[} 
-            nodes_y = [9, 11, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 642, 644, 755, 756, 757, 758, 759, 760, 761, 762, 763, 764, 765, 766, 767]  # Nodes in Set-2 Y are n-1 inside nodes_y[} 
-     
-           # Calculate somax and somay
-            for nx in nodes_x:
-                somax += abs(cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['TF'].values[nx].data[0])
-            
-            for ny in nodes_y:
-                somay += abs(cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['TF'].values[ny].data[1])
-            
-            # Append somax and somay to data
-            data.extend([somax, somay])
-            
-            # Calculate other values and append to data
-            for ii in range(no_of_field_output_ut_values):
-                node_displacement = cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['S'].values[ii].data[0]
-                strainx = cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['LE'].values[ii].data[0]
-                strainy = cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['LE'].values[ii].data[1]
-                strainxy = cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['LE'].values[ii].data[3]
-                
-                data.extend([strainx, strainy, strainxy])
-            
-            # Append the row data to all_data
-            all_data.append(data)
-
-            # Loop for nodes
-            for node in range(nodes):
-                n_cords = cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['COORD'].values[node].data
-                # Loop for coordinates
-                for cord in n_cords:
-                    nodes_data.extend([cord])
-
-            nodes_all_data.append(nodes_data)
+        # Calculate somax and somay
+        for nx in nodes_x:
+            somax += abs(cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['TF'].values[nx].data[0])
         
-        # Use writerows() to write all_data to the CSV file in bulk
-        writer.writerows(all_data)
-        nodes_writer.writerows(nodes_all_data)
-
-    if index == 0:
-        # Define CSV file path
-        csv_elements = r'{}\elements.csv'.format(MYCSVDIR)
-
-        with open(csv_elements, 'wb') as f_elements:
-            el_writer = csv.writer(f_elements)
-
-            # Create a list to store all rows of data
-            el_all_data = []
-
-            # Loop for elements
-            for el in range(elements):
-                el_data = []
-                el_nodes = cruci_ODB.steps['Step-1'].frames[0].fieldOutputs['S'].values[0].instance.elements[el].connectivity
-                for n in el_nodes:
-                    el_data.extend([n])
-
-                # Append the row data to all_data
-                el_all_data.append(el_data)
-
-            # Use writerows() to write all_data to the CSV file in bulk
-            el_writer.writerows(el_all_data)
-
-        inst_el = a.instances['Part-1-1'].elements
-        csv_centroids = r'{}\centroids.csv'.format(MYCSVDIR)
-
-        # Open a .csv file to write the results
-        with open(csv_centroids, 'wb') as f_cent:
-            cent_writer = csv.writer(f_cent)
+        for ny in nodes_y:
+            somay += abs(cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['TF'].values[ny].data[1])
+        
+        # Append somax and somay to data
+        data.extend([somax, somay])
+        
+        # Calculate other values and append to data
+        for ii in range(no_of_field_output_ut_values):
+            node_displacement = cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['S'].values[ii].data[0]
+            strainx = cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['LE'].values[ii].data[0]
+            strainy = cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['LE'].values[ii].data[1]
+            strainxy = cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['LE'].values[ii].data[3]
             
-            # Create a list to store all rows of data
-            centroid_list = []
-            
-            # Loop for elements
-            for i, el in enumerate(inst_el):
-                region = regionToolset.Region(elements=inst_el[i:i+1])
-                properties = a.getMassProperties(regions=region)
+            data.extend([strainx, strainy, strainxy])
+        
+        # Append the row data to all_data
+        all_data.append(data)
 
-                # Append the row data
-                centroid_list.append(list(properties['volumeCentroid']))
+        # # Loop for nodes
+        # for node in range(nodes):
+        #     n_cords = cruci_ODB.steps['Step-1'].frames[i].fieldOutputs['COORD'].values[node].data
+        #     # Loop for coordinates
+        #     for cord in n_cords:
+        #         nodes_data.extend([cord])
 
-            # Use writerows() to write all_data to the CSV file in bulk
-            cent_writer.writerows(centroid_list)
+        # nodes_all_data.append(nodes_data)
+    
+    # Use writerows() to write all_data to the CSV file in bulk
+    writer.writerows(all_data)
+    # nodes_writer.writerows(nodes_all_data)
 
-    # Close the ODB file
-    cruci_ODB.close()
+# if index == 0:
+# Define CSV file path
+# csv_elements = r'{}\elements.csv'.format(MYCSVDIR)
+
+# with open(csv_elements, 'wb') as f_elements:
+#     el_writer = csv.writer(f_elements)
+
+#     # Create a list to store all rows of data
+#     el_all_data = []
+
+#     # Loop for elements
+#     for el in range(elements):
+#         el_data = []
+#         el_nodes = cruci_ODB.steps['Step-1'].frames[0].fieldOutputs['S'].values[0].instance.elements[el].connectivity
+#         for n in el_nodes:
+#             el_data.extend([n])
+
+#         # Append the row data to all_data
+#         el_all_data.append(el_data)
+
+#     # Use writerows() to write all_data to the CSV file in bulk
+#     el_writer.writerows(el_all_data)
+
+inst_el = a.instances['Part-1-1'].elements
+csv_centroids = r'{}\centroids.csv'.format(MYCSVDIR)
+
+# Open a .csv file to write the results
+print("Starting centroids ...")
+with open(csv_centroids, 'wb') as f_cent:
+    cent_writer = csv.writer(f_cent)
+    
+    # Create a list to store all rows of data
+    centroid_list = []
+    
+    # Loop for elements
+    for i, el in enumerate(inst_el):
+        region = regionToolset.Region(elements=inst_el[i:i+1])
+        properties = a.getMassProperties(regions=region)
+
+        # Append the row data
+        centroid_list.append(list(properties['volumeCentroid']))
+
+    # Use writerows() to write all_data to the CSV file in bulk
+    cent_writer.writerows(centroid_list)
+
+# Close the ODB file
+cruci_ODB.close()
+
+# End the timer and calculate elapsed time
+end_time = time.time()
+elapsed_time = end_time - start_time
+
+# Convert elapsed time to minutes and seconds
+elapsed_minutes = int(elapsed_time // 60)
+elapsed_seconds = int(elapsed_time % 60)
+
+# Print total elapsed time in "minutes:seconds" format
+print("Finished in {}:{:02d} minutes.".format(elapsed_minutes, elapsed_seconds))
