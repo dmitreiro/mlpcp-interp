@@ -71,7 +71,7 @@ def main():
         y=y.iloc[index1]
 
         # replace the first row in X with a numeric header from 1 to number of columns
-        X.columns = list(range(1, X.shape[1] + 1))
+        X.columns = list(range(X.shape[1]))
 
         # set a random seed for reproducibility
         random_state = 42
