@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import random
-from sklearn.preprocessing import StandardScaler
 import configparser
 
 # reading config file and accessing variables
@@ -45,12 +44,16 @@ def main():
         y = y[colunas_sem_nan]
         # y=y.loc[X.index]
 
+        # get number of columns and points
+        n_cols = len(X.columns)
+        points = int((n_cols/20-2)/3)
+
         # put columns into X
         l=[]
         for x in range(1,21):
             l.append("Force_x_"+str(x))
             l.append("Force_y_"+str(x))
-            for p in range(1,565):#numero de elementos
+            for p in range(1, points+1): # number of elements
                 l.append("Strain_x_"+str(p)+"_"+str(x))
                 l.append("Strain_y_"+str(p)+"_"+str(x))
                 l.append("Strain_xy_"+str(p)+"_"+str(x))
@@ -67,12 +70,15 @@ def main():
         X=X.iloc[index1]
         y=y.iloc[index1]
 
+        # replace the first row in X with a numeric header from 1 to number of columns
+        X.columns = list(range(1, X.shape[1] + 1))
+
         # set a random seed for reproducibility
         random_state = 42
         np.random.seed(random_state)
 
         # calculate number of rows to delete (to get a "round number")
-        rows_to_delete = len(X) - 2600
+        rows_to_delete = len(X) - 2260
 
         # randomly choose the indices to delete
         indices_to_delete = np.random.choice(X.index, size=rows_to_delete, replace=False)
@@ -84,19 +90,14 @@ def main():
         X = X_reduced
         y = y_reduced
 
-        # scaler
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X)
-        X_scaled = pd.DataFrame(X_scaled)
-
         X=X.reset_index(drop=True)
         y=y.reset_index(drop=True)
 
         # separate data for train and test
         r = random.sample(range(0, len(X)), 260) # define number of simulations to test
-        X_test = X_scaled.loc[r]
+        X_test = X.loc[r]
         y_test = y.loc[r]
-        X_train = X_scaled.drop(r)
+        X_train = X.drop(r)
         y_train = y.drop(r)
 
     except Exception as e:
