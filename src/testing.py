@@ -5,6 +5,7 @@ from sklearn.metrics import (
     mean_absolute_error,
     mean_absolute_percentage_error
 )
+from sklearn.preprocessing import StandardScaler
 import configparser
 import time
 import joblib
@@ -37,6 +38,9 @@ def test_and_evaluate(grid, method, test_method):
     xgb_model = os.path.join(
         MODELS, f"xgb_{grid}_{method}.joblib"
     )
+    scaler_file = os.path.join(
+        MODELS, f"scaler_{grid}_{method}.joblib"
+    )
 
     # load feature and target data
     try:
@@ -65,6 +69,14 @@ def test_and_evaluate(grid, method, test_method):
     X_test.columns = l
     # print(f"X_train shape: {X_test.shape}")
 
+    # loading scaler
+    try:
+        scaler = joblib.load(scaler_file)
+        X_test_scaled = scaler.transform(X_test)
+    except Exception as e:
+        print(f"Error loading or applying scaler: {e}")
+        return
+
     # load trained model
     try:
         print("Loading xgb model...")
@@ -79,7 +91,7 @@ def test_and_evaluate(grid, method, test_method):
 
     # predict training values
     try:
-        y_test_pred = modelo.predict(X_test)
+        y_test_pred = modelo.predict(X_test_scaled)
     except Exception as e:
         print(f"Error predicting values: {e}")
         return

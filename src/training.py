@@ -8,6 +8,7 @@ from sklearn.metrics import (
     mean_absolute_percentage_error,
 )
 from sklearn.multioutput import MultiOutputRegressor
+from sklearn.preprocessing import StandardScaler
 import xgboost as xgb
 import os
 
@@ -64,13 +65,25 @@ def train_and_evaluate(grid: int, method: str):
     X_train.columns = l
     # print(f"X_train shape: {X_train.shape}")
 
+    # scaler
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+
+    # set path for scaler file
+    scaler_file = os.path.join(
+        MODELS, f"scaler_{grid}_{method}.joblib"
+    )
+
+    # dump the scaler to a file
+    joblib.dump(scaler, scaler_file)
+
     # start timer for training
     start_time_training = time.monotonic()
 
     # train the model on the training data
     try:
         print(f"Starting train...")
-        modelo = MultiOutputRegressor(xgb.XGBRegressor(learning_rate=0.02, max_depth=4, n_estimators=1000, tree_method="hist", device="cpu")).fit(X_train, y_train)
+        modelo = MultiOutputRegressor(xgb.XGBRegressor(learning_rate=0.02, max_depth=4, n_estimators=1000, tree_method="hist", device="cpu")).fit(X_train_scaled, y_train)
     except Exception as e:
         print(f"Error training model: {e}")
         return
