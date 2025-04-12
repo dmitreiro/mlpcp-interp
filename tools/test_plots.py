@@ -243,7 +243,7 @@ def tst_cross_bygrid_r2_plot():
         fig.text(x_pos, y_pos, letter,
              verticalalignment="top", horizontalalignment="left")
 
-    y_limits = [(0.96, 1.02)]  # Custom y-axis limits
+    y_limits = [(0.94, 1.02)]  # Custom y-axis limits
 
     # Iterate over model methods and metrics to create plots
     model_methods = ["linear", "cubic", "multiquadric"]
@@ -300,7 +300,7 @@ def rev_interp_bygrid_plot():
         fig.text(x_pos, y_pos, letter,
              verticalalignment="top", horizontalalignment="left")
 
-    y_limits = [(0.95, 1.04), (0, 0.1), (0, 1)]  # Custom y-axis limits
+    y_limits = [(0, 1.5), (0, 0.001), (0, 0.6)]  # Custom y-axis limits
 
     # Create a plot for each metric
     for i, (ax, metric, title, ylim) in enumerate(zip(axes, plt_conf["metrics"], plt_conf["titles"], y_limits)):
