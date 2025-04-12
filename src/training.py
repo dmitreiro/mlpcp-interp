@@ -107,7 +107,7 @@ def train_and_evaluate(grid: int, method: str):
 
     # predict on training data
     try:
-        y_train_pred = modelo.predict(X_train)
+        y_train_pred = modelo.predict(X_train_scaled)
     except Exception as e:
         print(f"Error predicting on training data: {e}")
         return
