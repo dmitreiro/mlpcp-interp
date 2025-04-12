@@ -187,7 +187,7 @@ for grid in GRIDS:
         global_max = max(np.nanmax(x_int_exx), np.nanmax(x_int_eyy), np.nanmax(x_int_exy),
                         np.nanmax(x_ori_exx), np.nanmax(x_ori_eyy), np.nanmax(x_ori_exy))
         
-        global_min, global_max = -9, 9
+        # print(global_min, global_max)
 
         # Define the data pairs for each row
         data_pairs = [
