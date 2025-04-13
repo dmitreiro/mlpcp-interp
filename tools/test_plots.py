@@ -143,7 +143,7 @@ def dic_predict_bygrid_plot():
         fig.text(x_pos, y_pos, letter,
              verticalalignment="top", horizontalalignment="left")
 
-    y_limits = [(0.96, 1.02), (0.5, 2), (0.01, 0.02)]  # Custom y-axis limits
+    y_limits = [(0.96, 1.02), (4, 10), (0.02, 0.1)]  # Custom y-axis limits
 
     # Create a plot for each metric
     for i, (ax, metric, title, ylim) in enumerate(zip(axes, plt_conf["metrics"], plt_conf["titles"], y_limits)):
