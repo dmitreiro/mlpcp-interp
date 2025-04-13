@@ -278,19 +278,20 @@ os.system('Abaqus job=Job-1.inp user=UMMDp_FLC.f interactive ask_delete=OFF')
 # valor_r0=round(float(valor[0]),3)
 # valor_r45=round(float(valor[1]),3)
 # valor_r90=round(float(valor[2]),3)
-valor_k=594.72
-valor_sigma0=148.6
-valor_n=0.229
+valor_k=397.92
+valor_sigma0=179.68
+valor_n=0.209
 
 # F,G,H,L,M,N,sigma0,k,n
-# 0.1146,0.3452,0.6548,1.5,1.5,1.0589,148.6,594.72,0.229
+# 0.1146,0.3452,0.6548,1.5,1.5,1.0589,148.6,594.72,0.229 1st parameters
+# 0.1192,0.3982,0.6018,1.5,1.5,3.2719,179.68,397.92,0.209 2nd parameters
 
-valor_F = 0.1146
-valor_G = 0.3452
-valor_H = 0.6548
+valor_F = 0.1192
+valor_G = 0.3982
+valor_H = 0.6018
 valor_L = 1.5
 valor_M = 1.5
-valor_N = 1.0589
+valor_N = 3.2719
 valor_e0= round(float((valor_sigma0/valor_k)**(1/valor_n)),4)
 valor_E=210000
 valor_v=0.3
