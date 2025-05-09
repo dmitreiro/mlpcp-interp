@@ -84,7 +84,7 @@ def generate_comparison_plots(grid, method, test_method):
     # fig, axes = plt.subplots(rows, 3, figsize=(18, 6 * rows))
     # axes = axes.flatten()  # Flatten axes array for easy indexing
 
-    fig_width_in = 13.8 / 2.54  # Convert cm to inches
+    fig_width_in = 15 / 2.54  # Convert cm to inches
     subplot_size = fig_width_in / 3  # Keep subplots square
     num_params = 12  # Number of subplots
 
@@ -101,10 +101,10 @@ def generate_comparison_plots(grid, method, test_method):
 
     # Adjust subplot spacing
     plt.subplots_adjust(
-        left=0.09,   # Adjust left margin
+        left=0.085,   # Adjust left margin
         right=0.98,  # Adjust right margin
         top=0.99,    # Adjust top margin
-        bottom=0.052, # Adjust bottom margin
+        bottom=0.045, # Adjust bottom margin
         wspace=0.6,  # Increase horizontal space between plots
         hspace=0.5   # Increase vertical space between plots
     )
