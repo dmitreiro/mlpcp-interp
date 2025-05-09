@@ -215,8 +215,8 @@ for grid in GRIDS:
                 vmin=global_min, vmax=global_max
             )
             # axes[row_idx, 0].set_title(f'{titles[row_idx]} - Interpolated')
-            axes[row_idx, 0].set_xlabel('x (mm)')
-            axes[row_idx, 0].set_ylabel('y (mm)')
+            axes[row_idx, 0].set_xlabel('x [mm]')
+            axes[row_idx, 0].set_ylabel('y [mm]')
             axes[row_idx, 0].set_aspect("equal", adjustable="box")
 
             # equal scales and ticks on both axes
@@ -232,8 +232,8 @@ for grid in GRIDS:
                 vmin=global_min, vmax=global_max
             )
             # axes[row_idx, 1].set_title(f'{titles[row_idx]} - Original')
-            axes[row_idx, 1].set_xlabel('x (mm)')
-            axes[row_idx, 1].set_ylabel('y (mm)')
+            axes[row_idx, 1].set_xlabel('x [mm]')
+            axes[row_idx, 1].set_ylabel('y [mm]')
             axes[row_idx, 1].set_aspect("equal", adjustable="box")
 
             # equal scales and ticks on both axes

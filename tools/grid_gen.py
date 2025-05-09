@@ -147,8 +147,8 @@ for ax, letter, (n_points, (x_coords, y_coords)) in zip(plot_axes, letters, zip(
     ax.scatter(x_coords, y_coords, color="blue", s=0.3, label="Grid") # grid points
     ax.scatter(centroid_x, centroid_y, color="red", s=0.3, label="Centroids") # centroids
     # ax.set_title(f"Grid: {n_points}x{n_points}")
-    ax.set_xlabel("x (mm)")
-    ax.set_ylabel("y (mm)")
+    ax.set_xlabel("x [mm]")
+    ax.set_ylabel("y [mm]")
     ax.legend(fontsize=7, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper right")
     #ax.grid(True)
     
@@ -173,8 +173,8 @@ for i, (n_points, (x_coords, y_coords)) in enumerate(zip(grid_sizes, coords), st
     # Scatter plot for the centroids
     plt.scatter(centroid_x, centroid_y, color="red", s=2, label="Centroids")
     plt.title(f"Grid: {n_points}x{n_points}")
-    plt.xlabel("X (mm)")
-    plt.ylabel("Y (mm)")
+    plt.xlabel("X [mm]")
+    plt.ylabel("Y [mm]")
     plt.legend()  # Add a legend
     plt.grid(True)
 
