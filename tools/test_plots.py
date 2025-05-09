@@ -4,6 +4,7 @@ import inspect
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib.ticker import StrMethodFormatter
 
 # Reading configuration file
 config = configparser.ConfigParser()
@@ -359,11 +360,11 @@ def time_grid_plot():
 
     # Adjust subplot spacing
     plt.subplots_adjust(
-        left=0.09,
+        left=0.1,
         right=0.995,
         top=0.88,
         bottom=0.15,
-        wspace=0.35
+        wspace=0.4
     )
 
     # labels for each subplot
@@ -392,6 +393,8 @@ def time_grid_plot():
     axes[0].legend(fontsize=6, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper left")
     axes[0].grid(axis="y", linestyle="--", linewidth=0.5, alpha=0.7)
     axes[0].set_ylim(0, 6000)
+    axes[0].yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))  # Comma formatting
+
 
     # Second subplot: Training Time vs Grid
     sns.barplot(
@@ -408,6 +411,8 @@ def time_grid_plot():
     axes[1].legend(fontsize=6, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper left")
     axes[1].grid(axis="y", linestyle="--", linewidth=0.5, alpha=0.7)
     axes[1].set_ylim(0, 17500)
+    axes[1].yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))  # Comma formatting
+
 
     # Adjust layout to prevent overlapping
     # plt.tight_layout()
