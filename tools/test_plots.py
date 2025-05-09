@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.ticker import StrMethodFormatter
+from matplotlib.ticker import FuncFormatter
 
 # Reading configuration file
 config = configparser.ConfigParser()
@@ -38,6 +39,13 @@ plt.rcParams.update({
     "legend.fontsize": 6,
     "legend.edgecolor": "black"
 })
+
+def conditional_comma_formatter(x, pos):
+    if abs(x) >= 10000:  # 5 or more digits
+        return f'{x:,.0f}'  # Comma formatting
+    else:
+        return f'{x:.0f}'  # No comma
+
 
 def plot_config():
     # General plot configuration
@@ -360,7 +368,7 @@ def time_grid_plot():
 
     # Adjust subplot spacing
     plt.subplots_adjust(
-        left=0.1,
+        left=0.095,
         right=0.995,
         top=0.88,
         bottom=0.15,
@@ -369,7 +377,7 @@ def time_grid_plot():
 
     # labels for each subplot
     letters = [r"\textbf{(a)}", r"\textbf{(b)}"]
-    positions = [(0.1, 0.97), (0.615, 0.97)]
+    positions = [(0.095, 0.97), (0.62, 0.97)]
 
     for letter, (x_pos, y_pos) in zip(letters, positions):
         fig.text(x_pos, y_pos, letter,
@@ -393,7 +401,7 @@ def time_grid_plot():
     axes[0].legend(fontsize=6, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper left")
     axes[0].grid(axis="y", linestyle="--", linewidth=0.5, alpha=0.7)
     axes[0].set_ylim(0, 6000)
-    axes[0].yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))  # Comma formatting
+    axes[0].yaxis.set_major_formatter(FuncFormatter(conditional_comma_formatter))
 
 
     # Second subplot: Training Time vs Grid
@@ -411,7 +419,7 @@ def time_grid_plot():
     axes[1].legend(fontsize=6, markerscale=1, labelspacing=0.05, handletextpad=0.5, loc="upper left")
     axes[1].grid(axis="y", linestyle="--", linewidth=0.5, alpha=0.7)
     axes[1].set_ylim(0, 17500)
-    axes[1].yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))  # Comma formatting
+    axes[1].yaxis.set_major_formatter(FuncFormatter(conditional_comma_formatter))
 
 
     # Adjust layout to prevent overlapping
