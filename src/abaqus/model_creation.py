@@ -36,7 +36,7 @@ import connectorBehavior
 
 # Define path for data
 current_dir = os.getcwd()
-MYCSVDIR = os.path.join(current_dir, '..', '..', 'data', 'raw')
+MYCSVDIR = os.path.join(current_dir, 'data', 'regular_mesh')
 MYCSVDIR = os.path.normpath(MYCSVDIR)
 
 overwrite=True
