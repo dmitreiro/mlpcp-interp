@@ -139,7 +139,8 @@ ui-tests/.pnp.*
 git_filters/*
 
 # Ignore all files in abaqus folder but this ones
-src/abaqus/*
-!src/abaqus/*.py
-!src/abaqus/UMMDp_FLC-std.obj
-!src/abaqus/UMMDp_FLC.f
+abaqus/*
+!abaqus/data
+!abaqus/*.py
+!abaqus/UMMDp_FLC-std.obj
+!abaqus/UMMDp_FLC.f
